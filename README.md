@@ -28,3 +28,7 @@ You can simply build the tests by setting the CMake option `DHB_TEST` to `On`.
 ```
 cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DDHB_TEST=On ..
 ```
+
+# Benchmarks and Experimental Evaluation
+
+An evaluation of DHB and other dynamic graph data structures can be found at: https://github.com/hu-macsy/dhb-experiments
