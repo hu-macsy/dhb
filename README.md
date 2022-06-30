@@ -23,7 +23,10 @@ ninja
 
 # Build Tests
 
-You can simply build the tests by setting the CMake option `DHB_TEST` to `On`.
+You must clone this repository recursively in order to obtain catch2 which is
+necessary for our test environment.
+
+You can then build the tests by setting the CMake option `DHB_TEST` to `On`.
 
 ```
 cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DDHB_TEST=On ..
