@@ -30,6 +30,7 @@ You can then build the tests by setting the CMake option `DHB_TEST` to `On`.
 
 ```
 cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DDHB_TEST=On ..
+ninja
 ```
 
 # Benchmarks and Experimental Evaluation
