@@ -312,6 +312,15 @@ template <typename T> class BatchParallelizer {
         };
 
 #pragma omp single
+        // We start with an input buffer which is the batch that is to be
+        // operated on (distribute workload). In order to operate in fair balance
+        // we need to distribute the edges of the batch to our thread pool.
+        // Therefore, each thread first identifies the edges that have to be
+        // moved around using a hash function for the edges key (e.g. the edge
+        // source). Second, an additional out buffer is allocated, offsets and
+        // edges to be moved computed. Finally, all edges are moved to that out
+        // buffer then ready to be used by the map() function.
+
         {
             m_batch_counts.resize((t_count + 1) * t_count);
             m_out.resize(t_count);
@@ -343,7 +352,6 @@ template <typename T> class BatchParallelizer {
         }
 
 #pragma omp barrier
-
         // Do a prefix sum over the send count *to* the current thread.
 
         unsigned int psum = 0;
@@ -357,8 +365,8 @@ template <typename T> class BatchParallelizer {
         m_out[t_id].resize(psum);
 
 #pragma omp barrier
-
-        // Move the entries around.
+        // We have determined which edges have to be moved to which thread buffers.
+        // Now it is time to move the edges to the thread buffers.
 
         m_wp[t_id].resize(t_count);
         for (int at = 0; at < t_count; ++at)
