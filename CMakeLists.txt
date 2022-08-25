@@ -17,7 +17,7 @@ option(WITH_DHB_SYSTEM_ALLOCATOR "Use DHB System Allocator" OFF)
 option(WITH_DHB_64BIT_IDS "Use 64 bit IDs." OFF)
 
 # different ways of sorting edges when inserting in concurrently
-set(WITH_DHB_SCATTER "twophase" CACHE STRING "Parallelization method")
+set(WITH_DHB_SCATTER "counting" CACHE STRING "Parallelization method")
 
 add_library(dhb STATIC)
 
