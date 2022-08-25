@@ -24,7 +24,17 @@ ninja
 # Build Tests
 
 You must clone this repository recursively in order to obtain catch2 which is
-necessary for our test environment.
+necessary for our test environment using:
+
+```bash
+git clone --recursive https://github.com/hu-macsy/dhb.git
+```
+
+If you forgot to clone recursive, simply update with initialisation:
+
+```bash
+git submodule update --init --recursive
+```
 
 You can then build the tests by setting the CMake option `DHB_TEST` to `On`.
 

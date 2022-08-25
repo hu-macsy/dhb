@@ -294,43 +294,56 @@ template <typename T> class BatchParallelizer {
 
 #elif defined(DHB_SCATTER_COUNTING)
         auto key_to_thread = [](unsigned int k, unsigned int t_count) -> unsigned int {
-            auto hash = [](unsigned int x) -> unsigned int {
+            // More on this xor shift hash function can be found at:
+            // https://stackoverflow.com/questions/664014/what-integer-hash-function-are-good-that-accepts-an-integer-hash-key
+            auto hash = [](uint32_t x) -> uint32_t {
                 x = ((x >> 16) ^ x) * 0x45d9f3b;
                 x = ((x >> 16) ^ x) * 0x45d9f3b;
                 x = (x >> 16) ^ x;
                 return x;
             };
 
-            // First, hash the key to get a value that is scattered evenly in [0, 2^32).
-            // For such values, the multiplication + shift yields an almost fair map,
-            // see https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/.
+            // We are using a fast alternative to the modulo reduction from
+            // Daniel Lemire's blog. See:
+            // https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction First,
+            // hash the key to get a value that is scattered evenly in [0, 2^32). For such values,
+            // the multiplication + shift yields an almost fair map.
             return (static_cast<uint64_t>(hash(k)) * static_cast<uint64_t>(t_count)) >> 32;
         };
 
 #pragma omp single
+        // We start with an input buffer which is the batch that is to be
+        // operated on (distribute workload). In order to operate in fair balance
+        // we need to distribute the objects of the batch to our thread pool.
+        // Therefore, each thread first identifies the objects that have to be
+        // moved around using a hash function for the objects key (e.g. an edge
+        // source). Second, an additional out buffer is allocated, offsets and
+        // objects to be moved computed. Finally, all objects are moved to that out
+        // buffer then ready to be used by the map() function.
+
         {
             m_batch_counts.resize((t_count + 1) * t_count);
             m_out.resize(t_count);
             m_wp.resize(t_count);
         }
 
-        auto t = omp_get_thread_num();
+        int const t_id = omp_get_thread_num();
 
-        auto counts_of_thread = [&](int ct) -> unsigned int* {
-            return &m_batch_counts[ct * (t_count + 1)];
+        auto counts_of_thread = [&](int for_t_id) -> unsigned int* {
+            return &m_batch_counts[for_t_id * (t_count + 1)];
         };
 
         auto n_per_thread = n / t_count;
-        ptrdiff_t i_begin = t * n_per_thread;
+        ptrdiff_t i_begin = t_id * n_per_thread;
         ptrdiff_t i_end = i_begin + n_per_thread;
-        if (t == t_count - 1)
+        if (t_id == t_count - 1) {
             i_end = n;
+        }
 
-        // First, determine send counts.
+        // Determine send counts.
+        auto t_counts = counts_of_thread(t_id);
+        std::fill_n(std::begin(t_counts), t_count, 0);
 
-        auto t_counts = counts_of_thread(t);
-        for (int at = 0; at < t_count; ++at)
-            t_counts[at] = 0;
         for (ptrdiff_t i = i_begin; i < i_end; ++i) {
             auto it = begin + i;
             auto k = key(*it);
@@ -339,27 +352,28 @@ template <typename T> class BatchParallelizer {
         }
 
 #pragma omp barrier
-
         // Do a prefix sum over the send count *to* the current thread.
 
         unsigned int psum = 0;
         for (int rt = 0; rt < t_count; ++rt) {
             auto rt_counts = counts_of_thread(rt);
-            auto c = rt_counts[t];
-            rt_counts[t] = psum;
+            auto c = rt_counts[t_id];
+            rt_counts[t_id] = psum;
             psum += c;
         }
 
-        m_out[t].resize(psum);
+        m_out[t_id].resize(psum);
 
 #pragma omp barrier
+        // We have determined which objects have to be moved to which thread buffers.
+        // Now it is time to move the objects to the thread buffers. Therefore, we
+        // use m_wp: an array of pointers for each thread storing the current
+        // pointer to the out array to which to write the object.
 
-        // Move the entries around.
-
-        m_wp[t].resize(t_count);
+        m_wp[t_id].resize(t_count);
         for (int at = 0; at < t_count; ++at)
-            m_wp[t][at] = m_out[at].data() + t_counts[at];
-        auto wp_ptr = m_wp[t].data();
+            m_wp[t_id][at] = m_out[at].data() + t_counts[at];
+        auto wp_ptr = m_wp[t_id].data();
 
         for (ptrdiff_t i = i_begin; i < i_end; ++i) {
             auto it = begin + i;
