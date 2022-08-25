@@ -329,8 +329,8 @@ template <typename T> class BatchParallelizer {
 
         int const t_id = omp_get_thread_num();
 
-        auto counts_of_thread = [&](int t_id) -> unsigned int* {
-            return &m_batch_counts[t_id * (t_count + 1)];
+        auto counts_of_thread = [&](int for_t_id) -> unsigned int* {
+            return &m_batch_counts[for_t_id * (t_count + 1)];
         };
 
         auto n_per_thread = n / t_count;
