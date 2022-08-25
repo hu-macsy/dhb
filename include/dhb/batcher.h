@@ -318,17 +318,18 @@ template <typename T> class BatchParallelizer {
             m_wp.resize(t_count);
         }
 
-        auto t = omp_get_thread_num();
+        int t_id = omp_get_thread_num();
 
         auto counts_of_thread = [&](int ct) -> unsigned int* {
             return &m_batch_counts[ct * (t_count + 1)];
         };
 
         auto n_per_thread = n / t_count;
-        ptrdiff_t i_begin = t * n_per_thread;
+        ptrdiff_t i_begin = t_id * n_per_thread;
         ptrdiff_t i_end = i_begin + n_per_thread;
-        if (t == t_count - 1)
+        if (t_id == t_count - 1) {
             i_end = n;
+        }
 
         // First, determine send counts.
 
@@ -349,21 +350,21 @@ template <typename T> class BatchParallelizer {
         unsigned int psum = 0;
         for (int rt = 0; rt < t_count; ++rt) {
             auto rt_counts = counts_of_thread(rt);
-            auto c = rt_counts[t];
-            rt_counts[t] = psum;
+            auto c = rt_counts[t_id];
+            rt_counts[t_id] = psum;
             psum += c;
         }
 
-        m_out[t].resize(psum);
+        m_out[t_id].resize(psum);
 
 #pragma omp barrier
 
         // Move the entries around.
 
-        m_wp[t].resize(t_count);
+        m_wp[t_id].resize(t_count);
         for (int at = 0; at < t_count; ++at)
-            m_wp[t][at] = m_out[at].data() + t_counts[at];
-        auto wp_ptr = m_wp[t].data();
+            m_wp[t_id][at] = m_out[at].data() + t_counts[at];
+        auto wp_ptr = m_wp[t_id].data();
 
         for (ptrdiff_t i = i_begin; i < i_end; ++i) {
             auto it = begin + i;
