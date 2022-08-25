@@ -314,11 +314,11 @@ template <typename T> class BatchParallelizer {
 #pragma omp single
         // We start with an input buffer which is the batch that is to be
         // operated on (distribute workload). In order to operate in fair balance
-        // we need to distribute the edges of the batch to our thread pool.
-        // Therefore, each thread first identifies the edges that have to be
-        // moved around using a hash function for the edges key (e.g. the edge
+        // we need to distribute the objects of the batch to our thread pool.
+        // Therefore, each thread first identifies the objects that have to be
+        // moved around using a hash function for the objects key (e.g. an edge
         // source). Second, an additional out buffer is allocated, offsets and
-        // edges to be moved computed. Finally, all edges are moved to that out
+        // objects to be moved computed. Finally, all objects are moved to that out
         // buffer then ready to be used by the map() function.
 
         {
