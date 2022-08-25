@@ -365,8 +365,10 @@ template <typename T> class BatchParallelizer {
         m_out[t_id].resize(psum);
 
 #pragma omp barrier
-        // We have determined which edges have to be moved to which thread buffers.
-        // Now it is time to move the edges to the thread buffers.
+        // We have determined which objects have to be moved to which thread buffers.
+        // Now it is time to move the objects to the thread buffers. Therefore, we
+        // use m_wp: an array of pointers for each thread storing the current
+        // pointer to the out array to which to write the object.
 
         m_wp[t_id].resize(t_count);
         for (int at = 0; at < t_count; ++at)
