@@ -294,7 +294,9 @@ template <typename T> class BatchParallelizer {
 
 #elif defined(DHB_SCATTER_COUNTING)
         auto key_to_thread = [](unsigned int k, unsigned int t_count) -> unsigned int {
-            auto hash = [](unsigned int x) -> unsigned int {
+            // More on this xor shift hash function can be found at:
+            // https://stackoverflow.com/questions/664014/what-integer-hash-function-are-good-that-accepts-an-integer-hash-key
+            auto hash = [](uint32_t x) -> uint32_t {
                 x = ((x >> 16) ^ x) * 0x45d9f3b;
                 x = ((x >> 16) ^ x) * 0x45d9f3b;
                 x = (x >> 16) ^ x;
