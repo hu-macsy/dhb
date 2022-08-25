@@ -303,9 +303,11 @@ template <typename T> class BatchParallelizer {
                 return x;
             };
 
-            // First, hash the key to get a value that is scattered evenly in [0, 2^32).
-            // For such values, the multiplication + shift yields an almost fair map,
-            // see https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/.
+            // We are using a fast alternative to the modulo reduction from
+            // Daniel Lemire's blog. See:
+            // https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction First,
+            // hash the key to get a value that is scattered evenly in [0, 2^32). For such values,
+            // the multiplication + shift yields an almost fair map.
             return (static_cast<uint64_t>(hash(k)) * static_cast<uint64_t>(t_count)) >> 32;
         };
 
