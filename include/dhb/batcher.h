@@ -320,8 +320,8 @@ template <typename T> class BatchParallelizer {
 
         int t_id = omp_get_thread_num();
 
-        auto counts_of_thread = [&](int ct) -> unsigned int* {
-            return &m_batch_counts[ct * (t_count + 1)];
+        auto counts_of_thread = [&](int t_id) -> unsigned int* {
+            return &m_batch_counts[t_id * (t_count + 1)];
         };
 
         auto n_per_thread = n / t_count;
@@ -331,11 +331,10 @@ template <typename T> class BatchParallelizer {
             i_end = n;
         }
 
-        // First, determine send counts.
+        // Determine send counts.
+        auto t_counts = counts_of_thread(t_id);
+        std::fill_n(std::begin(t_counts), t_count, 0);
 
-        auto t_counts = counts_of_thread(t);
-        for (int at = 0; at < t_count; ++at)
-            t_counts[at] = 0;
         for (ptrdiff_t i = i_begin; i < i_end; ++i) {
             auto it = begin + i;
             auto k = key(*it);
