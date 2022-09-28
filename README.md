@@ -10,6 +10,13 @@ This is the repository of the Dynamic Hashed Blocks (DHB) format.
 | Maria Predari             | predarim@informatik.hu-berlin.de        | HU Berlin   |
 | Florian Willich           | florian.willich@informatik.hu-berlin.de | HU Berlin   |
 
+## Publications
+
+For a detailed discussion of DHB and a comparison with other graph data structures
+please read the paper _A Fast Data Structure for Dynamic Graphs Based on 
+Hash-Indexed Adjacency Blocks_ (2022) available on the [Dagstuhl Research Online 
+Publication Server (DROPS)](https://drops.dagstuhl.de/opus/volltexte/2022/16545/).
+
 # Build Library
 
 Build the library using CMake (e.g., with the generator Ninja).
