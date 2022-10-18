@@ -9,6 +9,7 @@ include(GNUInstallDirs)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+
 # Configure the option whether you want to use the systems own allocater
 # WITH_DHB_SYSTEM_ALLOCATOR=ON
 # or our own written allocator strategy
@@ -107,6 +108,7 @@ set_target_properties(${PROJECT_NAME}::${PROJECT_NAME} PROPERTIES
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${public_headers}")
 set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "d")
+
 
 # ===================================
 # Make a Configuration Package

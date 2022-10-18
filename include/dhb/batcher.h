@@ -9,6 +9,11 @@
 #include <thread>
 #include <tuple>
 
+#include <atomic>
+#include <dhb/block.h>
+
+
+
 namespace dhb {
 
 template <typename EdgeIt>
