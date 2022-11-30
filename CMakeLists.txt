@@ -30,6 +30,7 @@ set(public_headers
   include/dhb/graph.h
   include/dhb/integer_log2.h
   include/dhb/vec.h
+  include/dhb/submatrix.h
 )
 
 target_sources(${PROJECT_NAME}
