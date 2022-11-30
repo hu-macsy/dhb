@@ -174,6 +174,7 @@ if (DHB_TEST)
     test/matrix.cpp
     test/vec.cpp
     test/block.cpp
+    test/submatrix.cpp
   )
 
   target_link_libraries(dhb_test PRIVATE dhb Catch2::Catch2WithMain OpenMP::OpenMP_CXX stdc++fs)
