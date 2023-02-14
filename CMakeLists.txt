@@ -30,6 +30,7 @@ set(public_headers
   include/dhb/graph.h
   include/dhb/integer_log2.h
   include/dhb/vec.h
+  include/dhb/submatrix.h
 )
 
 target_sources(${PROJECT_NAME}
@@ -173,6 +174,7 @@ if (DHB_TEST)
     test/matrix.cpp
     test/vec.cpp
     test/block.cpp
+    test/submatrix.cpp
   )
 
   target_link_libraries(dhb_test PRIVATE dhb Catch2::Catch2WithMain OpenMP::OpenMP_CXX stdc++fs)
