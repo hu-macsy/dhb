@@ -56,6 +56,7 @@ TEST_CASE("Matrix") {
 
         CHECK(m.degree(max_degree_vertex) == 94);
         CHECK(m.edges_count() == bio_celegans_edge_count);
+        CHECK(m.vertices_count() == bio_celegans_vertex_count);
     }
 
     SECTION("NeighborView") {
@@ -166,10 +167,11 @@ TEST_CASE("Matrix") {
 
         Edges new_edges{e89_14, e89_8};
 
+        auto cmp = [](Edge const& a, Edge const& b) { return a.source < b.source; };
+        auto key = [](Edge e) { return e.source; };
+        auto fun = [&](Edge e) { m.neighbors(e.source).insert(e.target.vertex, e.target.data); };
         BatchParallelizer<Edge> par;
-        par(
-            new_edges.begin(), new_edges.end(), [](Edge e) { return e.source; },
-            [&](Edge e) { m.neighbors(e.source).insert(e.target.vertex, e.target.data); });
+        par(new_edges.begin(), new_edges.end(), std::move(key), std::move(cmp), std::move(fun));
 
         Matrix<EdgeData>::NeighborView nv = m.neighbors(89);
         CHECK(nv.degree() == 5);
@@ -190,16 +192,18 @@ TEST_CASE("Matrix") {
 
         Edges new_edges{e89_14, e89_8, e89_13_update};
 
+        auto cmp = [](Edge const& a, Edge const& b) { return a.source < b.source; };
+        auto key = [](Edge e) { return e.source; };
+        auto fun = [&](Edge e) {
+            std::tuple<dhb::BlockState<dhb::EdgeData>::iterator, bool> insertion_result =
+                m.neighbors(e.source).insert(e.target.vertex, e.target.data);
+            if (!std::get<1>(insertion_result)) {
+                std::get<0>(insertion_result)->data() = e.target.data;
+            }
+        };
+
         BatchParallelizer<Edge> par;
-        par(
-            new_edges.begin(), new_edges.end(), [](Edge e) { return e.source; },
-            [&](Edge e) {
-                std::tuple<dhb::BlockState<dhb::EdgeData>::iterator, bool> insertion_result =
-                    m.neighbors(e.source).insert(e.target.vertex, e.target.data);
-                if (!std::get<1>(insertion_result)) {
-                    std::get<0>(insertion_result)->data() = e.target.data;
-                }
-            });
+        par(new_edges.begin(), new_edges.end(), std::move(key), std::move(cmp), std::move(fun));
 
         Matrix<EdgeData>::NeighborView nv = m.neighbors(89);
         CHECK(nv.degree() == 5);
@@ -219,18 +223,104 @@ TEST_CASE("Matrix") {
         REQUIRE(omp_get_max_threads() == thread_count);
 
         Matrix<EdgeData> m(graph::vertex_count(edges));
+
+        auto cmp = [](Edge const& a, Edge const& b) { return a.source < b.source; };
+        auto key = [](Edge e) { return e.source; };
+        auto fun = [&](Edge e) { m.neighbors(e.source).insert(e.target.vertex, e.target.data); };
         BatchParallelizer<Edge> par;
-        par(
-            edges.begin(), edges.end(), [](Edge e) { return e.source; },
-            [&](Edge e) { m.neighbors(e.source).insert(e.target.vertex, e.target.data); });
+        par(edges.begin(), edges.end(), std::move(key), std::move(cmp), fun);
 
         Edge e89_14{89, Target{14, EdgeData{10.f, 450}}};
         Edge e89_8{89, Target{8, EdgeData{10.f, 451}}};
 
         Edges new_edges{e89_14, e89_8};
 
-        par(
-            new_edges.begin(), new_edges.end(), [](Edge e) { return e.source; },
+        auto cmp2 = [](Edge const& a, Edge const& b) { return a.source < b.source; };
+        auto key2 = [](Edge e) { return e.source; };
+        par(new_edges.begin(), new_edges.end(), std::move(key2), std::move(cmp2),
+            [&](Edge e) { m.neighbors(e.source).insert(e.target.vertex, e.target.data); });
+
+        Matrix<EdgeData>::NeighborView nv = m.neighbors(89);
+        CHECK(nv.degree() == 5);
+        CHECK(nv.exists(14));
+        CHECK(nv.exists(8));
+        CHECK(nv.exists(13));
+        CHECK(nv.exists(31));
+        CHECK(nv.exists(86));
+    }
+
+    SECTION("parallel insert no update dual threaded, two phase, apply") {
+        unsigned int const thread_count = 2;
+        omp_set_num_threads(thread_count);
+        REQUIRE(omp_get_max_threads() == thread_count);
+
+        Matrix<EdgeData> m(graph::vertex_count(edges));
+
+        auto cmp = [](Edge const& a, Edge const& b) { return a.source < b.source; };
+        auto key = [](Edge e) { return e.source; };
+        auto fun = [&](Edge e) { m.neighbors(e.source).insert(e.target.vertex, e.target.data); };
+        BatchParallelizer<Edge> par;
+
+        par.apply(edges.begin(), edges.end(), std::move(key), std::move(cmp), fun);
+
+        Edge e89_14{89, Target{14, EdgeData{10.f, 450}}};
+        Edge e89_8{89, Target{8, EdgeData{10.f, 451}}};
+
+        Edges new_edges{e89_14, e89_8};
+
+        auto cmp2 = [](Edge const& a, Edge const& b) { return a.source < b.source; };
+        auto key2 = [](Edge e) { return e.source; };
+
+        par(new_edges.begin(), new_edges.end(), std::move(key2), std::move(cmp2),
+            [&](Edge e) { m.neighbors(e.source).insert(e.target.vertex, e.target.data); });
+
+        Matrix<EdgeData>::NeighborView nv = m.neighbors(89);
+        CHECK(nv.degree() == 5);
+        CHECK(nv.exists(14));
+        CHECK(nv.exists(8));
+        CHECK(nv.exists(13));
+        CHECK(nv.exists(31));
+        CHECK(nv.exists(86));
+    }
+
+    SECTION("parallel insert no update dual threaded, two phase, map, distribute") {
+        unsigned int const thread_count = 2;
+        omp_set_num_threads(thread_count);
+        REQUIRE(omp_get_max_threads() == thread_count);
+
+        Matrix<EdgeData> m(graph::vertex_count(edges));
+
+        auto cmp = [](Edge const& a, Edge const& b) { return a.source < b.source; };
+        auto key = [](Edge e) { return e.source; };
+        auto fun = [&](Edge e) { m.neighbors(e.source).insert(e.target.vertex, e.target.data); };
+        BatchParallelizer<Edge> par;
+
+        std::vector<unsigned int> degrees(m.vertices_count());
+#pragma omp parallel
+        {
+            par.distribute(edges.begin(), edges.end(), key);
+
+            par.map(edges.begin(), edges.end(), [&](const auto& e) { ++degrees[e.source]; });
+
+            par.map(edges.begin(), edges.end(), [&](auto const& e) {
+                if (degrees[e.source]) {
+                    m.preallocate(e.source, degrees[e.source]);
+                    degrees[e.source] = 0;
+                }
+
+                m.neighbors(e.source).insert(e.target.vertex, e.target.data);
+            });
+        }
+
+        Edge e89_14{89, Target{14, EdgeData{10.f, 450}}};
+        Edge e89_8{89, Target{8, EdgeData{10.f, 451}}};
+
+        Edges new_edges{e89_14, e89_8};
+
+        auto cmp2 = [](Edge const& a, Edge const& b) { return a.source < b.source; };
+        auto key2 = [](Edge e) { return e.source; };
+
+        par(new_edges.begin(), new_edges.end(), std::move(key2), std::move(cmp2),
             [&](Edge e) { m.neighbors(e.source).insert(e.target.vertex, e.target.data); });
 
         Matrix<EdgeData>::NeighborView nv = m.neighbors(89);
@@ -248,9 +338,12 @@ TEST_CASE("Matrix") {
         REQUIRE(omp_get_max_threads() == thread_count);
 
         Matrix<EdgeData> m(graph::vertex_count(edges));
+
+        auto cmp = [](Edge const& a, Edge const& b) { return a.source < b.source; };
+        auto key = [](Edge e) { return e.source; };
+
         BatchParallelizer<Edge> par;
-        par(
-            edges.begin(), edges.end(), [](Edge e) { return e.source; },
+        par(edges.begin(), edges.end(), std::move(key), std::move(cmp),
             [&](Edge e) { m.neighbors(e.source).insert(e.target.vertex, e.target.data); });
 
         Edge e89_14{89, Target{14, EdgeData{10.f, 450}}};
@@ -260,15 +353,16 @@ TEST_CASE("Matrix") {
 
         Edges new_edges{e89_14, e89_8, e89_13_update};
 
-        par(
-            new_edges.begin(), new_edges.end(), [](Edge e) { return e.source; },
-            [&](Edge e) {
-                std::tuple<dhb::BlockState<dhb::EdgeData>::iterator, bool> insertion_result =
-                    m.neighbors(e.source).insert(e.target.vertex, e.target.data);
-                if (!std::get<1>(insertion_result)) {
-                    std::get<0>(insertion_result)->data() = e.target.data;
-                }
-            });
+        auto cmp2 = [](Edge const& a, Edge const& b) { return a.source < b.source; };
+        auto key2 = [](Edge e) { return e.source; };
+
+        par(new_edges.begin(), new_edges.end(), std::move(key), std::move(cmp), [&](Edge e) {
+            std::tuple<dhb::BlockState<dhb::EdgeData>::iterator, bool> insertion_result =
+                m.neighbors(e.source).insert(e.target.vertex, e.target.data);
+            if (!std::get<1>(insertion_result)) {
+                std::get<0>(insertion_result)->data() = e.target.data;
+            }
+        });
 
         Matrix<EdgeData>::NeighborView nv = m.neighbors(89);
         CHECK(nv.degree() == 5);

@@ -152,7 +152,7 @@ if (DHB_TEST)
   add_executable(dhb_test
     test/graph_io.h
     test/graph_io.cpp
-    test/matrix.cpp
+    test/matrix_test.cpp
     test/vec.cpp
     test/block.cpp
     test/submatrix.cpp
