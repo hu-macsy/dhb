@@ -18,8 +18,7 @@ inline uint32_t hash32(uint32_t x) {
 }
 
 // Thanks to David Stafford for his further research on Austin Appleby's
-// MurmurHash3 specifically for input values with low entropy such as it is the
-// case for our dynamic hashtable that shall store vertex ids - and are more
+// MurmurHash3 specifically for input values with low entropy which are more
 // close to counting numbers than random ones.
 //
 // The one we are using here is Mix13.
