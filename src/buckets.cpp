@@ -2,6 +2,7 @@
 #include <dhb/integer_log2.h>
 
 #include <cassert>
+#include <stdexcept>
 
 namespace dhb {
 

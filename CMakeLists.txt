@@ -6,7 +6,7 @@ project(dhb VERSION 1.0.0)
 
 include(GNUInstallDirs)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
@@ -16,9 +16,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # WITH_DHB_SYSTEM_ALLOCATOR=OFF
 option(WITH_DHB_SYSTEM_ALLOCATOR "Use DHB System Allocator" OFF)
 option(WITH_DHB_64BIT_IDS "Use 64 bit IDs." OFF)
-
-# different ways of sorting edges when inserting in concurrently
-set(WITH_DHB_SCATTER "counting" CACHE STRING "Parallelization method")
 
 add_library(dhb STATIC)
 
@@ -35,6 +32,7 @@ set(public_headers
 
 target_sources(${PROJECT_NAME}
   PRIVATE
+    include/dhb/hash_tools.h
     src/buckets.cpp
     src/dynamic_hashed_blocks.cpp
     src/graph.cpp
@@ -53,22 +51,6 @@ if (WITH_DHB_64BIT_IDS)
   target_compile_definitions(dhb PUBLIC -DDHB_64BIT_IDS)
 else()
   MESSAGE(STATUS "Using 32 bit IDs.")
-endif()
-
-if (WITH_DHB_SCATTER STREQUAL "twophase")
-	MESSAGE(STATUS "Using scatter in two phases.")
-	target_compile_definitions(dhb PUBLIC -DDHB_SCATTER_TWOPHASE)
-elseif (WITH_DHB_SCATTER STREQUAL "counting")
-	MESSAGE(STATUS "Using scatter counting.")
-	target_compile_definitions(dhb PUBLIC -DDHB_SCATTER_COUNTING)
-elseif (WITH_DHB_SCATTER STREQUAL "sorting")
-	MESSAGE(STATUS "Using scatter sorting.")
-	target_compile_definitions(dhb PUBLIC -DDHB_SCATTER_SORTING)
-elseif (WITH_DHB_SCATTER STREQUAL "darts")
-	MESSAGE(STATUS "Using scatter darts.")
-	target_compile_definitions(dhb PUBLIC -DDHB_SCATTER_DARTS)
-else()
-	message(FATAL_ERROR "Illegal setting for WITH_DHB_SCATTER")
 endif()
 
 set_property(TARGET dhb PROPERTY POSITION_INDEPENDENT_CODE ON)
@@ -109,7 +91,6 @@ set_target_properties(${PROJECT_NAME}::${PROJECT_NAME} PROPERTIES
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${public_headers}")
 set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "d")
-
 
 # ===================================
 # Make a Configuration Package
@@ -171,7 +152,7 @@ if (DHB_TEST)
   add_executable(dhb_test
     test/graph_io.h
     test/graph_io.cpp
-    test/matrix.cpp
+    test/matrix_test.cpp
     test/vec.cpp
     test/block.cpp
     test/submatrix.cpp
