@@ -159,6 +159,39 @@ TEST_CASE("Matrix") {
         CHECK(!m.removeEdge(89, 13));
     }
 
+    SECTION("add loop") {
+        constexpr Vertex vertex_count = 3;
+        Matrix<Weight> m(vertex_count);
+
+        REQUIRE(3 == m.vertices_count());
+        REQUIRE(m.insert(0, 1, 1.f, false));
+        REQUIRE(1 == m.edges_count());
+
+        CHECK(m.insert(0, 0, 1.f, false));
+        REQUIRE(m.neighbors(0).exists(0));
+        CHECK(2 == m.edges_count());
+
+        REQUIRE(m.insert(0, 0, 2.f, true));
+        REQUIRE(!m.insert(0, 0, 2.f, false));
+    }
+
+    SECTION("remove loop") {
+        constexpr Vertex vertex_count = 3;
+        Matrix<Weight> m(vertex_count);
+
+        REQUIRE(3 == m.vertices_count());
+        REQUIRE(m.insert(0, 1, 1.f, false));
+        REQUIRE(1 == m.edges_count());
+
+        CHECK(m.insert(0, 0, 1.f, false));
+        CHECK(2 == m.edges_count());
+
+        REQUIRE(m.removeEdge(0, 0));
+
+        REQUIRE(!m.neighbors(0).exists(0));
+        REQUIRE(1 == m.edges_count());
+    }
+
     SECTION("parallel insert no update single threaded") {
         Matrix<EdgeData> m(std::move(edges));
 
