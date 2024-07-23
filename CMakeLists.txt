@@ -11,11 +11,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 # Configure the option whether you want to use the systems own allocater
-# WITH_DHB_SYSTEM_ALLOCATOR=ON
+# DHB_WITH_SYSTEM_ALLOCATOR=ON
 # or our own written allocator strategy
-# WITH_DHB_SYSTEM_ALLOCATOR=OFF
-option(WITH_DHB_SYSTEM_ALLOCATOR "Use DHB System Allocator" OFF)
-option(WITH_DHB_64BIT_IDS "Use 64 bit IDs." OFF)
+# DHB_WITH_SYSTEM_ALLOCATOR=OFF
+option(DHB_WITH_SYSTEM_ALLOCATOR "Use DHB System Allocator" OFF)
+option(DHB_WITH_64BIT_IDS "Use 64 bit IDs." OFF)
 
 add_library(dhb STATIC)
 
@@ -41,12 +41,12 @@ target_sources(${PROJECT_NAME}
 # ===================================
 # Options check and set definitions
 # ===================================
-if (WITH_DHB_SYSTEM_ALLOCATOR)
+if (DHB_WITH_SYSTEM_ALLOCATOR)
   MESSAGE(STATUS "Using DHB System Allocator.")
   target_compile_definitions(dhb PUBLIC -DDHB_SYSTEM_ALLOCATOR)
 endif()
 
-if (WITH_DHB_64BIT_IDS)
+if (DHB_WITH_64BIT_IDS)
   MESSAGE(STATUS "Using 64 bit IDs.")
   target_compile_definitions(dhb PUBLIC -DDHB_64BIT_IDS)
 else()
@@ -132,8 +132,8 @@ set_property(TARGET dhb APPEND PROPERTY
 # ========================
 # Test Target
 # ========================
-option(DHB_TEST "Build test target." OFF)
-if (DHB_TEST)
+option(DHB_BUILD_TESTS "Build test target." OFF)
+if (DHB_BUILD_TESTS)
   if(EXISTS "${PROJECT_SOURCE_DIR}/test/lib/Catch2")
     add_subdirectory(${PROJECT_SOURCE_DIR}/test/lib/Catch2)
   else()
