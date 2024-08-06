@@ -14,9 +14,10 @@
 
 namespace dhb {
 
-template <typename EdgeIt>
+template <typename EdgeIt, typename GetSourceF>
 std::tuple<EdgeIt, EdgeIt> thread_batch(EdgeIt batch_begin, EdgeIt batch_end,
-                                        unsigned int thread_count, unsigned int thread_id) {
+                                        GetSourceF&& get_source_f, unsigned int thread_count,
+                                        unsigned int thread_id) {
     size_t const batch_size = std::distance(batch_begin, batch_end);
     size_t const elements = batch_size / thread_count;
     if (elements == 0 || elements == batch_size) {
@@ -37,16 +38,17 @@ std::tuple<EdgeIt, EdgeIt> thread_batch(EdgeIt batch_begin, EdgeIt batch_end,
 
     if (start != end) {
         Vertex const predecessor =
-            (start == batch_begin) ? invalidVertex() : std::prev(start, 1)->source;
+            (start == batch_begin) ? invalidVertex() : get_source_f(*std::prev(start, 1));
 
-        while (start != end && predecessor == start->source) {
+        while (start != end && predecessor == get_source_f(*start)) {
             std::advance(start, 1);
         }
 
         if (start != end) {
-            for (Vertex successor = (end == batch_end) ? invalidVertex() : end->source;
-                 end != batch_end && successor == (end - 1)->source && end->source != predecessor;
-                 successor = end->source) {
+            for (Vertex successor = (end == batch_end) ? invalidVertex() : get_source_f(*end);
+                 end != batch_end && successor == get_source_f(*(end - 1)) &&
+                 get_source_f(*end) != predecessor;
+                 successor = get_source_f(*end)) {
                 std::advance(end, 1);
             }
         }
@@ -65,8 +67,9 @@ template <typename key_t> key_t key_to_thread(key_t k, uint32_t t_count) {
 
 template <typename T> class BatchParallelizer {
   public:
-    template <typename Iterator, typename K, typename Cmp, typename F>
-    void operator()(Iterator begin, Iterator end, K key, Cmp cmp, F func) {
+    template <typename Iterator, typename GetSourceF, typename K, typename Cmp, typename F>
+    void operator()(Iterator begin, Iterator end, GetSourceF&& get_source_f, K key, Cmp cmp,
+                    F func) {
         int const t_count = omp_get_max_threads();
         size_t const n = end - begin;
         if (t_count == 1 || n < t_count) {
@@ -79,7 +82,7 @@ template <typename T> class BatchParallelizer {
 #pragma omp parallel shared(begin, end)
         {
             std::tuple<Iterator, Iterator> local_batch =
-                thread_batch(begin, end, t_count, omp_get_thread_num());
+                thread_batch(begin, end, std::move(get_source_f), t_count, omp_get_thread_num());
             for (auto it = std::get<0>(local_batch); it != std::get<1>(local_batch); ++it) {
                 func(*it);
             }
