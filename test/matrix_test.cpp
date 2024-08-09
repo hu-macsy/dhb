@@ -90,6 +90,21 @@ TEST_CASE("Matrix") {
         CHECK(nv.exists(14));
     }
 
+    SECTION("change target vertex of edge") {
+        Matrix<EdgeData> m(std::move(edges));
+        constexpr Vertex source = 89;
+        constexpr Vertex target = 31;
+        constexpr Vertex target_update = 32;
+        Matrix<EdgeData>::NeighborView nv = m.neighbors(source);
+
+        REQUIRE(nv.exists(target));
+        Matrix<EdgeData>::NeighborView::iterator edge = nv.iterator_to(target);
+        edge.get_ptr()->vertex = target_update;
+
+        CHECK(nv.exists(target_update));
+        CHECK(!nv.exists(target));
+    }
+
     SECTION("ConstNeighborView") {
         Matrix<EdgeData> const m(std::move(edges));
         // N(89) = 13, 31
