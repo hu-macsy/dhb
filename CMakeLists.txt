@@ -20,19 +20,19 @@ option(DHB_WITH_64BIT_IDS "Use 64 bit IDs." OFF)
 add_library(dhb STATIC)
 
 set(public_headers
+  include/dhb/vec.h
   include/dhb/batcher.h
   include/dhb/block.h
   include/dhb/buckets.h
   include/dhb/dynamic_hashed_blocks.h
   include/dhb/graph.h
+  include/dhb/hash_tools.h
   include/dhb/integer_log2.h
-  include/dhb/vec.h
   include/dhb/submatrix.h
 )
 
 target_sources(${PROJECT_NAME}
   PRIVATE
-    include/dhb/hash_tools.h
     src/buckets.cpp
     src/dynamic_hashed_blocks.cpp
     src/graph.cpp
