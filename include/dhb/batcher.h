@@ -67,9 +67,8 @@ template <typename key_t> key_t key_to_thread(key_t k, uint32_t t_count) {
 
 template <typename T> class BatchParallelizer {
   public:
-    template <typename Iterator, typename GetSourceF, typename K, typename Cmp, typename F>
-    void operator()(Iterator begin, Iterator end, GetSourceF&& get_source_f, K key, Cmp cmp,
-                    F func) {
+    template <typename Iterator, typename GetSourceF, typename Cmp, typename F>
+    void operator()(Iterator begin, Iterator end, GetSourceF&& get_source_f, Cmp cmp, F func) {
         int const t_count = omp_get_max_threads();
         size_t const n = end - begin;
         if (t_count == 1 || n < t_count) {

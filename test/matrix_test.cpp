@@ -216,12 +216,11 @@ TEST_CASE("Matrix") {
         Edges new_edges{e89_14, e89_8};
 
         auto cmp = [](Edge const& a, Edge const& b) { return a.source < b.source; };
-        auto key = [](Edge e) { return e.source; };
         auto fun = [&](Edge e) { m.neighbors(e.source).insert(e.target.vertex, e.target.data); };
         auto get_edge_f = [](Edge const& e) { return e.source; };
         BatchParallelizer<Edge> par;
-        par(new_edges.begin(), new_edges.end(), std::move(get_edge_f), std::move(key),
-            std::move(cmp), std::move(fun));
+        par(new_edges.begin(), new_edges.end(), std::move(get_edge_f), std::move(cmp),
+            std::move(fun));
 
         Matrix<EdgeData>::NeighborView nv = m.neighbors(89);
         CHECK(nv.degree() == 5);
@@ -254,8 +253,8 @@ TEST_CASE("Matrix") {
         auto get_edge_f = [](Edge const& e) { return e.source; };
 
         BatchParallelizer<Edge> par;
-        par(new_edges.begin(), new_edges.end(), std::move(get_edge_f), std::move(key),
-            std::move(cmp), std::move(fun));
+        par(new_edges.begin(), new_edges.end(), std::move(get_edge_f), std::move(cmp),
+            std::move(fun));
 
         Matrix<EdgeData>::NeighborView nv = m.neighbors(89);
         CHECK(nv.degree() == 5);
@@ -281,7 +280,7 @@ TEST_CASE("Matrix") {
         auto fun = [&](Edge e) { m.neighbors(e.source).insert(e.target.vertex, e.target.data); };
         auto get_edge_f = [](Edge const& e) { return e.source; };
         BatchParallelizer<Edge> par;
-        par(edges.begin(), edges.end(), std::move(get_edge_f), std::move(key), std::move(cmp), fun);
+        par(edges.begin(), edges.end(), std::move(get_edge_f), std::move(cmp), fun);
 
         Edge e89_14{89, Target{14, EdgeData{10.f, 450}}};
         Edge e89_8{89, Target{8, EdgeData{10.f, 451}}};
@@ -290,8 +289,7 @@ TEST_CASE("Matrix") {
 
         auto cmp2 = [](Edge const& a, Edge const& b) { return a.source < b.source; };
         auto key2 = [](Edge e) { return e.source; };
-        par(new_edges.begin(), new_edges.end(), std::move(get_edge_f), std::move(key2),
-            std::move(cmp2),
+        par(new_edges.begin(), new_edges.end(), std::move(get_edge_f), std::move(cmp2),
             [&](Edge e) { m.neighbors(e.source).insert(e.target.vertex, e.target.data); });
 
         Matrix<EdgeData>::NeighborView nv = m.neighbors(89);
@@ -326,8 +324,7 @@ TEST_CASE("Matrix") {
         auto cmp2 = [](Edge const& a, Edge const& b) { return a.source < b.source; };
         auto key2 = [](Edge e) { return e.source; };
 
-        par(new_edges.begin(), new_edges.end(), std::move(get_edge_f), std::move(key2),
-            std::move(cmp2),
+        par(new_edges.begin(), new_edges.end(), std::move(get_edge_f), std::move(cmp2),
             [&](Edge e) { m.neighbors(e.source).insert(e.target.vertex, e.target.data); });
 
         Matrix<EdgeData>::NeighborView nv = m.neighbors(89);
@@ -377,8 +374,7 @@ TEST_CASE("Matrix") {
         auto cmp2 = [](Edge const& a, Edge const& b) { return a.source < b.source; };
         auto key2 = [](Edge e) { return e.source; };
 
-        par(new_edges.begin(), new_edges.end(), std::move(get_edge_f), std::move(key2),
-            std::move(cmp2),
+        par(new_edges.begin(), new_edges.end(), std::move(get_edge_f), std::move(cmp2),
             [&](Edge e) { m.neighbors(e.source).insert(e.target.vertex, e.target.data); });
 
         Matrix<EdgeData>::NeighborView nv = m.neighbors(89);
@@ -402,7 +398,7 @@ TEST_CASE("Matrix") {
         auto get_edge_f = [](Edge const& e) { return e.source; };
 
         BatchParallelizer<Edge> par;
-        par(edges.begin(), edges.end(), std::move(get_edge_f), std::move(key), std::move(cmp),
+        par(edges.begin(), edges.end(), std::move(get_edge_f), std::move(cmp),
             [&](Edge e) { m.neighbors(e.source).insert(e.target.vertex, e.target.data); });
 
         Edge e89_14{89, Target{14, EdgeData{10.f, 450}}};
@@ -415,14 +411,13 @@ TEST_CASE("Matrix") {
         auto cmp2 = [](Edge const& a, Edge const& b) { return a.source < b.source; };
         auto key2 = [](Edge e) { return e.source; };
 
-        par(new_edges.begin(), new_edges.end(), std::move(get_edge_f), std::move(key),
-            std::move(cmp), [&](Edge e) {
-                std::tuple<dhb::BlockState<dhb::EdgeData>::iterator, bool> insertion_result =
-                    m.neighbors(e.source).insert(e.target.vertex, e.target.data);
-                if (!std::get<1>(insertion_result)) {
-                    std::get<0>(insertion_result)->data() = e.target.data;
-                }
-            });
+        par(new_edges.begin(), new_edges.end(), std::move(get_edge_f), std::move(cmp), [&](Edge e) {
+            std::tuple<dhb::BlockState<dhb::EdgeData>::iterator, bool> insertion_result =
+                m.neighbors(e.source).insert(e.target.vertex, e.target.data);
+            if (!std::get<1>(insertion_result)) {
+                std::get<0>(insertion_result)->data() = e.target.data;
+            }
+        });
 
         Matrix<EdgeData>::NeighborView nv = m.neighbors(89);
         CHECK(nv.degree() == 5);
