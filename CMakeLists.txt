@@ -55,9 +55,8 @@ endif()
 
 set_property(TARGET dhb PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-find_package(OpenMP)
-
-target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
+find_package(OpenMP REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC OpenMP::OpenMP_CXX)
 
 target_include_directories(${PROJECT_NAME}
   PRIVATE
