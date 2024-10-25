@@ -1,0 +1,70 @@
+name: Run Builds and Tests
+
+on: [push, pull_request]
+
+jobs:
+  linux-build-latest-with-gcc:
+    name: "Linux gcc-11"
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Install prerequisites
+        run:  |
+          sudo apt-get update
+          sudo apt-get install ninja-build gcc-11 g++-11
+          g++ --version
+
+      - name: Checkout dhb
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: build library, 32 bit IDs, run test
+        run:  | 
+          [ ! -d build ] && mkdir build
+          cd build
+          mkdir gcc
+          cd gcc
+          cmake -GNinja -DDHB_BUILD_TESTS=ON -DDHB_WITH_64BIT_IDS=OFF -DCMAKE_CXX_COMPILER=g++-11 ../../
+          ninja
+          ./dhb_test
+
+      - name: build library, 64 bit IDs, run test
+        run:  | 
+          [ ! -d build ] && mkdir build
+          cd build
+          mkdir gcc
+          cd gcc
+          cmake -GNinja -DDHB_BUILD_TESTS=ON -DDHB_WITH_64BIT_IDS=ON -DCMAKE_CXX_COMPILER=g++-11 ../../
+          ninja
+          ./dhb_test
+
+  macos-build-latest-with-clang:
+    name: "macOS clang"
+    runs-on: macos-14
+    steps:
+      - name: Install prerequisites
+        run: |
+          brew install ninja
+          brew install libomp
+          brew install llvm
+  
+      - name: Checkout dhb
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      
+      - name: build library, 32 bit IDs, run test
+        run:  | 
+          [ ! -d build ] && mkdir build
+          cd build
+          cmake  -GNinja -DDHB_BUILD_TESTS=ON -DDHB_WITH_64BIT_IDS=OFF -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ ..
+          ninja
+          ./dhb_test
+      
+      - name: build library, 64 bit IDs, run test
+        run:  | 
+          [ ! -d build ] && mkdir build
+          cd build
+          cmake  -GNinja -DDHB_BUILD_TESTS=ON -DDHB_WITH_64BIT_IDS=ON -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ ..
+          ninja
+          ./dhb_test
