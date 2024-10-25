@@ -308,13 +308,12 @@ TEST_CASE("Matrix") {
 
         Matrix<EdgeData> m(graph::vertex_count(edges));
 
-        auto cmp = [](Edge const& a, Edge const& b) { return a.source < b.source; };
         auto key = [](Edge e) { return e.source; };
         auto fun = [&](Edge e) { m.neighbors(e.source).insert(e.target.vertex, e.target.data); };
         auto get_edge_f = [](Edge const& e) { return e.source; };
         BatchParallelizer<Edge> par;
 
-        par.apply(edges.begin(), edges.end(), std::move(key), std::move(cmp), fun);
+        par.apply(edges.begin(), edges.end(), std::move(key), fun);
 
         Edge e89_14{89, Target{14, EdgeData{10.f, 450}}};
         Edge e89_8{89, Target{8, EdgeData{10.f, 451}}};

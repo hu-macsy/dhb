@@ -88,8 +88,8 @@ template <typename T> class BatchParallelizer {
         }
     }
 
-    template <typename Iterator, typename K, typename Cmp, typename F>
-    void apply(Iterator begin, Iterator end, K key, Cmp cmp, F func) {
+    template <typename Iterator, typename K, typename F>
+    void apply(Iterator begin, Iterator end, K key, F func) {
         int const t_count = omp_get_max_threads();
         size_t const n = end - begin;
         if (t_count == 1 || n < t_count) {
