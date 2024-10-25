@@ -85,7 +85,7 @@ class BlockArray {
   public:
     BlockArray(unsigned int bytes_per_entry, unsigned int bsize, BlockCache* cache,
                unsigned int age)
-        : m_age{age}, m_bytes_per_entry(bytes_per_entry), m_cache(cache), m_bsize(bsize) {
+        : m_cache(cache), m_age{age}, m_bytes_per_entry(bytes_per_entry), m_bsize(bsize) {
         const size_t min_capacity = 0x200000; // 2 MiB.
         const size_t min_blocks = 10;
         size_t allocation_per_block;
@@ -168,12 +168,12 @@ class BlockArray {
 
   private:
     unsigned int m_age;
+    unsigned int const m_bytes_per_entry;
+    unsigned int const m_bsize;
     void* m_data;
     index_type* m_htab;
     std::vector<unsigned int> m_alloc_stack;
     std::vector<unsigned int> m_free_stack;
-    unsigned int const m_bytes_per_entry;
-    unsigned int const m_bsize;
     size_t m_capacity;
     size_t m_nblocks;
 };
