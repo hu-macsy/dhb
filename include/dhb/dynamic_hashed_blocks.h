@@ -114,7 +114,7 @@ template <typename E> struct Matrix {
         // insert vertex and it's neighbours to respective block arrays and increase size
         // of block array if necessary
         for (Edges::iterator edge = std::begin(edges); edge != std::end(edges);) {
-            Vertex source = edge->source;
+            Vertex const source = edge->source;
             Vertex next_source = source;
 
             auto& block = m_vertices[source];
