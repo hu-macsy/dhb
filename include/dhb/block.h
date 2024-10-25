@@ -79,7 +79,7 @@ class BlockHandle {
 
 #ifndef DHB_SYSTEM_ALLOCATOR
 
-class BlockCache;
+struct BlockCache;
 
 class BlockArray {
   public:
