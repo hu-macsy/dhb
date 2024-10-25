@@ -90,7 +90,7 @@ template <typename T> class BatchParallelizer {
 
     template <typename Iterator, typename K, typename F>
     void apply(Iterator begin, Iterator end, K key, F func) {
-        int const t_count = omp_get_max_threads();
+        size_t const t_count = omp_get_max_threads();
         size_t const n = end - begin;
         if (t_count == 1 || n < t_count) {
             for (auto it = begin; it != end; ++it)
@@ -110,7 +110,7 @@ template <typename T> class BatchParallelizer {
                 return &m_batch_counts[ct * (t_count + 1)];
             };
 
-            auto n_per_thread = n / t_count;
+            size_t const n_per_thread = n / t_count;
             auto i_begin = t * n_per_thread;
             auto i_end = i_begin + n_per_thread;
             if (t == t_count - 1)
