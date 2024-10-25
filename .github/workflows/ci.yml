@@ -57,7 +57,7 @@ jobs:
           cd build
           mkdir clang
           cd clang
-          cmake  -GNinja -DDHB_BUILD_TESTS=ON -DDHB_WITH_64BIT_IDS=OFF -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ ..
+          cmake -GNinja -DDHB_BUILD_TESTS=ON -DDHB_WITH_64BIT_IDS=OFF -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ ../../
           ninja
           ./dhb_test
       
@@ -65,6 +65,6 @@ jobs:
         run:  | 
           [ ! -d build ] && mkdir build
           cd build/clang
-          cmake  -GNinja -DDHB_BUILD_TESTS=ON -DDHB_WITH_64BIT_IDS=ON -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ ..
+          cmake  -GNinja -DDHB_BUILD_TESTS=ON -DDHB_WITH_64BIT_IDS=ON -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ ../../
           ninja
           ./dhb_test
