@@ -1,13 +1,11 @@
 #include "graph_io.h"
 
-#include <experimental/filesystem>
+#include <filesystem>
 
 dhb::Edges read_graph_unweighted(std::string path) {
-    namespace fs = std::experimental::filesystem;
+    std::filesystem::path graph_path(std::move(path));
 
-    fs::path graph_path(std::move(path));
-
-    if (!fs::exists(graph_path)) {
+    if (!std::filesystem::exists(graph_path)) {
         throw std::runtime_error("Path to graph does not exist!");
     }
 
@@ -21,11 +19,9 @@ dhb::Edges read_graph_unweighted(std::string path) {
 }
 
 std::tuple<dhb::Edges, Timestamps> read_temporal_graph(std::string path, bool const weighted) {
-    namespace fs = std::experimental::filesystem;
+    std::filesystem::path graph_path(std::move(path));
 
-    fs::path graph_path(std::move(path));
-
-    if (!fs::exists(graph_path)) {
+    if (!std::filesystem::exists(graph_path)) {
         throw std::runtime_error("Path to graph does not exist!");
     }
 
