@@ -30,7 +30,8 @@ jobs:
 
       - name: build library, 64 bit IDs, run test
         run:  | 
-          [ ! -d build ] && cd build/gcc
+          [ ! -d build ] && mkdir build
+          cd build/gcc
           cmake -GNinja -DDHB_BUILD_TESTS=ON -DDHB_WITH_64BIT_IDS=ON -DCMAKE_CXX_COMPILER=g++-11 ../../
           ninja
           ./dhb_test
@@ -62,7 +63,8 @@ jobs:
       
       - name: build library, 64 bit IDs, run test
         run:  | 
-          [ ! -d build ] && cd build/clang
+          [ ! -d build ] && mkdir build
+          cd build/clang
           cmake  -GNinja -DDHB_BUILD_TESTS=ON -DDHB_WITH_64BIT_IDS=ON -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ -DCMAKE_C_COMPILER=/opt/homebrew/opt/llvm/bin/clang ../../
           ninja
           ./dhb_test
