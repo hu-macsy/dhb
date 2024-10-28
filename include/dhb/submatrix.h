@@ -32,7 +32,7 @@ template <typename E> class Submatrix {
 
     Submatrix<E>& operator=(Submatrix<E>& other) {
         if (this != &other) {
-            m_set.resize(other.size());
+            m_set.resize(other.vertices_count());
             std::copy(std::begin(other.m_set), std::end(other.m_set), m_set);
 
             if (m_matrix != other.m_matrix) {

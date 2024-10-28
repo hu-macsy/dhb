@@ -99,8 +99,6 @@ template <typename E> struct Matrix {
 
     Matrix(Edges&& edges) : Matrix{} {
         std::vector<Degree> const extracted_degrees = degrees_from(edges);
-        Degree const max_degree =
-            *std::max_element(std::cbegin(extracted_degrees), std::end(extracted_degrees));
 
         unsigned int count = graph::vertex_count(edges);
         m_vertices.reserve(count);
@@ -116,9 +114,8 @@ template <typename E> struct Matrix {
         // insert vertex and it's neighbours to respective block arrays and increase size
         // of block array if necessary
         for (Edges::iterator edge = std::begin(edges); edge != std::end(edges);) {
-            Vertex source = edge->source;
+            Vertex const source = edge->source;
             Vertex next_source = source;
-            Degree degree = extracted_degrees[source];
 
             auto& block = m_vertices[source];
 

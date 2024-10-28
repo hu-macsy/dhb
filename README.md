@@ -1,3 +1,8 @@
+<p align="center">
+  <a href="https://github.com/hu-macsy/dhb/actions/workflows/ci.yml"><img src="https://github.com/hu-macsy/dhb/actions/workflows/ci.yml/badge.svg"></a>
+</p>
+
+
 # DHB
 
 This is the repository of the Dynamic Hashed Blocks (DHB) format.

@@ -1,8 +1,8 @@
 # Set minimum version of CMake.
-cmake_minimum_required(VERSION 3.11.4)
+cmake_minimum_required(VERSION 3.12)
 
 # Set project name and version
-project(dhb VERSION 1.0.0)
+project(dhb VERSION 1.0.0 LANGUAGES CXX)
 
 include(GNUInstallDirs)
 
@@ -56,8 +56,47 @@ endif()
 set_property(TARGET dhb PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 find_package(OpenMP)
+# Thanks to NetworKit for the following OpenMP code looking or OpenMP in the
+# most common folders:
+# https://github.com/networkit/networkit/blob/master/CMakeLists.txt#L145
+if(NOT OpenMP_FOUND)
+  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+      # This will find default libomp-installations for homebrew/MacPorts
+      find_library(LIBOMP_PATH NAMES omp PATHS "/usr/local/opt/libomp/lib" "/opt/local/lib/libomp" "/opt/homebrew/opt/libomp/lib")
+      find_path(LIBOMP_INCLUDE NAMES omp.h PATHS "/usr/local/opt/libomp/include" "/opt/local/include/libomp" "/opt/homebrew/opt/libomp/include")
+      if(LIBOMP_PATH AND LIBOMP_INCLUDE)
+          set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp -I${LIBOMP_INCLUDE}" CACHE STRING "Manually set" FORCE)
+      endif()
+  elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+      if(DEFINED ENV{CONDA_PREFIX})
+          find_library(LIBOMP_PATH NAMES omp HINTS "$ENV{CONDA_PREFIX}/lib"
+              PATHS "/usr/lib" "/usr/lib64")
+          find_path(LIBOMP_INCLUDE NAMES omp.h HINTS "$ENV{CONDA_PREFIX}/include"
+              PATHS "/usr/include")
+      else()
+          find_library(LIBOMP_PATH NAMES omp PATHS "/usr/lib" "/usr/lib64")
+          find_path(LIBOMP_INCLUDE NAMES omp.h PATHS "/usr/include")
+      endif()
+      if(LIBOMP_PATH AND LIBOMP_INCLUDE)
+          set(OpenMP_CXX_FLAGS "-fopenmp -I${LIBOMP_INCLUDE}" CACHE STRING "Manually set" FORCE)
+      endif()
+  endif()
 
-target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
+  # Set OpenMP-folders in case they are found with the aid of additional hints
+  if(LIBOMP_PATH AND LIBOMP_INCLUDE)
+      set(OpenMP_CXX_LIB_NAMES "omp" CACHE STRING "Manually set" FORCE)
+      set(OpenMP_omp_LIBRARY "${LIBOMP_PATH}" CACHE STRING "Manually set" FORCE)
+  else()
+      message(FATAL_ERROR "libomp was not found, but necessary to configure DHB with ${CMAKE_CXX_COMPILER_ID}")
+  endif()
+
+  # After setting basic OpenMP-folders, run find_package again to set everything. Also acts as a final sanity check.
+  find_package(OpenMP REQUIRED)
+endif()
+target_link_libraries(${PROJECT_NAME} PUBLIC OpenMP::OpenMP_CXX)
+
+# Be extra pedantic about warnings!
+target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
 target_include_directories(${PROJECT_NAME}
   PRIVATE
@@ -158,7 +197,7 @@ if (DHB_BUILD_TESTS)
     test/submatrix.cpp
   )
 
-  target_link_libraries(dhb_test PRIVATE dhb Catch2::Catch2WithMain OpenMP::OpenMP_CXX stdc++fs)
+  target_link_libraries(dhb_test PRIVATE dhb Catch2::Catch2WithMain OpenMP::OpenMP_CXX)
 
   install(
     TARGETS dhb_test

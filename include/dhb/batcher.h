@@ -67,9 +67,8 @@ template <typename key_t> key_t key_to_thread(key_t k, uint32_t t_count) {
 
 template <typename T> class BatchParallelizer {
   public:
-    template <typename Iterator, typename GetSourceF, typename K, typename Cmp, typename F>
-    void operator()(Iterator begin, Iterator end, GetSourceF&& get_source_f, K key, Cmp cmp,
-                    F func) {
+    template <typename Iterator, typename GetSourceF, typename Cmp, typename F>
+    void operator()(Iterator begin, Iterator end, GetSourceF&& get_source_f, Cmp cmp, F func) {
         int const t_count = omp_get_max_threads();
         size_t const n = end - begin;
         if (t_count == 1 || n < t_count) {
@@ -89,9 +88,9 @@ template <typename T> class BatchParallelizer {
         }
     }
 
-    template <typename Iterator, typename K, typename Cmp, typename F>
-    void apply(Iterator begin, Iterator end, K key, Cmp cmp, F func) {
-        int const t_count = omp_get_max_threads();
+    template <typename Iterator, typename K, typename F>
+    void apply(Iterator begin, Iterator end, K key, F func) {
+        size_t const t_count = omp_get_max_threads();
         size_t const n = end - begin;
         if (t_count == 1 || n < t_count) {
             for (auto it = begin; it != end; ++it)
@@ -104,14 +103,14 @@ template <typename T> class BatchParallelizer {
 
 #pragma omp parallel num_threads(t_count)
         {
-            auto t = omp_get_thread_num();
+            size_t const t = omp_get_thread_num();
             assert(omp_get_num_threads() == t_count);
 
             auto counts_of_thread = [&](int ct) -> uint64_t* {
                 return &m_batch_counts[ct * (t_count + 1)];
             };
 
-            auto n_per_thread = n / t_count;
+            size_t const n_per_thread = n / t_count;
             auto i_begin = t * n_per_thread;
             auto i_end = i_begin + n_per_thread;
             if (t == t_count - 1)
@@ -130,7 +129,7 @@ template <typename T> class BatchParallelizer {
             }
 
             uint64_t psum = 0;
-            for (int at = 0; at < t_count; ++at) {
+            for (size_t at = 0; at < t_count; ++at) {
                 psum += t_counts[at];
                 t_counts[at] = i_begin + psum;
             }
@@ -151,7 +150,7 @@ template <typename T> class BatchParallelizer {
 #pragma omp barrier
 
             uint64_t local_count = 0;
-            for (int ot = 0; ot < t_count; ++ot) {
+            for (size_t ot = 0; ot < t_count; ++ot) {
                 auto ot_counts = counts_of_thread(ot);
                 auto j_begin = ot_counts[t];
                 auto j_end = ot_counts[t + 1];
