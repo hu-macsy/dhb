@@ -21,7 +21,7 @@ jobs:
         with:
           submodules: true
 
-      - name: build library, 64 bit IDs turned ${{ matrix.vertexIDType }}, run test
+      - name: build library, ${{ matrix.vertexIDType }} IDs, run test
         run:  | 
           [ ! -d build ] && mkdir build
           cd build
@@ -55,7 +55,7 @@ jobs:
         with:
           submodules: true
       
-      - name: build library, 64 bit IDs turned ${{ matrix.vertexIDType }}, run test
+      - name: build library, ${{ matrix.vertexIDType }} IDs, run test
         env:
           CC: ${{ matrix.clangCompiler == 'Clang' && '/opt/homebrew/opt/llvm/bin/clang' || 'cc' }}
           CXX: ${{ matrix.clangCompiler == 'Clang' && '/opt/homebrew/opt/llvm/bin/clang++' || 'c++' }}
