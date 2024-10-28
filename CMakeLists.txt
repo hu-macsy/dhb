@@ -1,5 +1,5 @@
 # Set minimum version of CMake.
-cmake_minimum_required(VERSION 3.11.4)
+cmake_minimum_required(VERSION 3.12)
 
 # Set project name and version
 project(dhb VERSION 1.0.0 LANGUAGES CXX)
@@ -56,7 +56,6 @@ endif()
 set_property(TARGET dhb PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 find_package(OpenMP)
-
 # Thanks to NetworKit for the following OpenMP code looking or OpenMP in the
 # most common folders:
 # https://github.com/networkit/networkit/blob/master/CMakeLists.txt#L145
@@ -94,16 +93,6 @@ if(NOT OpenMP_FOUND)
   # After setting basic OpenMP-folders, run find_package again to set everything. Also acts as a final sanity check.
   find_package(OpenMP REQUIRED)
 endif()
-if(NOT TARGET OpenMP::OpenMP_CXX)
-    message("Creating custom OpenMP target for CMake Version < 3.12. Current CMake Version ${CMAKE_VERSION}")
-    find_package(Threads REQUIRED)
-    add_library(OpenMP::OpenMP_CXX IMPORTED INTERFACE)
-    set_property(TARGET OpenMP::OpenMP_CXX
-                 PROPERTY INTERFACE_COMPILE_OPTIONS ${OpenMP_CXX_FLAGS})
-    set_property(TARGET OpenMP::OpenMP_CXX
-                 PROPERTY INTERFACE_LINK_LIBRARIES ${OpenMP_CXX_FLAGS} Threads::Threads)
-endif()
-
 target_link_libraries(${PROJECT_NAME} PUBLIC OpenMP::OpenMP_CXX)
 
 # Be extra pedantic about warnings!
