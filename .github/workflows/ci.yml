@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   linux-build-latest-with-gcc:
-    name: "Linux gcc-11"
+    name: 'Linux gcc-11'
     runs-on: ubuntu-24.04
     strategy: 
       matrix: 
@@ -32,7 +32,7 @@ jobs:
           ./dhb_test
 
   macos-build-latest-with-clang:
-    name: "macOS clang"
+    name: 'macOS clang'
     runs-on: macos-14
     strategy: 
       matrix: 
