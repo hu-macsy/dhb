@@ -57,7 +57,7 @@ jobs:
       
       - name: build library, 64 bit IDs turned ${{ matrix.build64IDs }}, run test
         env:
-          CC: ${{ matrix.useClang == 'true' && '/opt/homebrew/opt/llvm/bin/clang' || 'c99' }}
+          CC: ${{ matrix.useClang == 'true' && '/opt/homebrew/opt/llvm/bin/clang' || 'cc' }}
           CXX: ${{ matrix.useClang == 'true' && '/opt/homebrew/opt/llvm/bin/clang++' || 'c++' }}
         run:  | 
           [ ! -d build ] && mkdir build
