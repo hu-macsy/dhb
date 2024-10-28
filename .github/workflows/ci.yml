@@ -37,7 +37,7 @@ jobs:
     strategy: 
       matrix: 
         build64IDs: ["OFF", "ON"]
-        useClang: [true, false]
+        useClang: ['true', 'false']
         
     steps:
       - name: Install prerequisites
