@@ -55,7 +55,7 @@ endif()
 
 set_property(TARGET dhb PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-find_package(OpenMP REQUIRED)
+find_package(OpenMP)
 if(NOT OpenMP_FOUND)
   # Thanks to NetworKit for this OpenMP CodeSnippet looking or OpenMP in the
   # most common folders:
