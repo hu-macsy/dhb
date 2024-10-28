@@ -46,7 +46,7 @@ jobs:
           brew install libomp
       
       - name: Install llvm
-        if: 'matrix.useClang == true'
+        if: ${{ 'matrix.useClang == true' }}
         run: |
           brew install llvm
   
