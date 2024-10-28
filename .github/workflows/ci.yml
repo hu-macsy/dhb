@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy: 
       matrix: 
-        vertexIDType: ['64bit', '32Bit']  
+        vertexIDType: ['64bit', '32bit']  
     steps:
       - name: Install prerequisites
         run:  |
@@ -36,7 +36,7 @@ jobs:
     runs-on: macos-14
     strategy: 
       matrix: 
-        vertexIDType: ['64bit', '32Bit']  
+        vertexIDType: ['64bit', '32bit']  
         clangCompiler: ['Clang', 'AppleClang']
         
     steps:
