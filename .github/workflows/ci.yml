@@ -34,11 +34,20 @@ jobs:
   macos-build-latest-with-clang:
     name: "macOS clang"
     runs-on: macos-14
+    strategy: 
+      matrix: 
+        build64IDs: ["OFF", "ON"]
+        useClang: [true, false]
+        
     steps:
       - name: Install prerequisites
         run: |
           brew install ninja
           brew install libomp
+      
+      - name: Install llvm
+        if: matrix.useClang == true
+        run: |
           brew install llvm
   
       - name: Checkout dhb
@@ -46,20 +55,12 @@ jobs:
         with:
           submodules: true
       
-      - name: build library, 32 bit IDs, run test
+      - name: build library, 64 bit IDs turned ${{ matrix.build64IDs }}, run test
         run:  | 
           [ ! -d build ] && mkdir build
           cd build
           mkdir clang
           cd clang
-          cmake -GNinja -DDHB_BUILD_TESTS=ON -DDHB_WITH_64BIT_IDS=OFF -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ -DCMAKE_C_COMPILER=/opt/homebrew/opt/llvm/bin/clang ../../
-          ninja
-          ./dhb_test
-      
-      - name: build library, 64 bit IDs, run test
-        run:  | 
-          [ ! -d build ] && mkdir build
-          cd build/clang
-          cmake  -GNinja -DDHB_BUILD_TESTS=ON -DDHB_WITH_64BIT_IDS=ON -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ -DCMAKE_C_COMPILER=/opt/homebrew/opt/llvm/bin/clang ../../
+          cmake -GNinja -DDHB_BUILD_TESTS=ON ${{ matrix.useClang == true && -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ -DCMAKE_C_COMPILER=/opt/homebrew/opt/llvm/bin/clang || -DCMAKE_CXX_COMPILER=c++ -DCMAKE_C_COMPILER=c99 }} -DDHB_WITH_64BIT_IDS=${{ matrix.build64IDs }} ../../
           ninja
           ./dhb_test
