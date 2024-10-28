@@ -6,6 +6,9 @@ jobs:
   linux-build-latest-with-gcc:
     name: "Linux gcc-11"
     runs-on: ubuntu-24.04
+    strategy: 
+      matrix: 
+        build64IDs: ["OFF", "ON"]  
     steps:
       - name: Install prerequisites
         run:  |
@@ -18,21 +21,13 @@ jobs:
         with:
           submodules: true
 
-      - name: build library, 32 bit IDs, run test
+      - name: build library, 64 bit IDs turned ${{ matrix.build64IDs }}, run test
         run:  | 
           [ ! -d build ] && mkdir build
           cd build
           mkdir gcc
           cd gcc
-          cmake -GNinja -DDHB_BUILD_TESTS=ON -DDHB_WITH_64BIT_IDS=OFF -DCMAKE_CXX_COMPILER=g++-11 ../../
-          ninja
-          ./dhb_test
-
-      - name: build library, 64 bit IDs, run test
-        run:  | 
-          [ ! -d build ] && mkdir build
-          cd build/gcc
-          cmake -GNinja -DDHB_BUILD_TESTS=ON -DDHB_WITH_64BIT_IDS=ON -DCMAKE_CXX_COMPILER=g++-11 ../../
+          cmake -GNinja -DDHB_BUILD_TESTS=ON -DDHB_WITH_64BIT_IDS=${{ matrix.build64IDs }} -DCMAKE_CXX_COMPILER=g++-11 ../../
           ninja
           ./dhb_test
 
