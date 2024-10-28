@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.11.4)
 
 # Set project name and version
-project(dhb VERSION 1.0.0)
+project(dhb VERSION 1.0.0 LANGUAGES CXX)
 
 include(GNUInstallDirs)
 
