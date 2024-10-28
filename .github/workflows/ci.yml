@@ -56,11 +56,14 @@ jobs:
           submodules: true
       
       - name: build library, 64 bit IDs turned ${{ matrix.build64IDs }}, run test
+        env:
+          CC: ${{ 'matrix.useClang == true' && '/opt/homebrew/opt/llvm/bin/clang' || 'c99' }}
+          CXX: ${{ 'matrix.useClang == true' && '/opt/homebrew/opt/llvm/bin/clang++' || 'c++' }}
         run:  | 
           [ ! -d build ] && mkdir build
           cd build
           mkdir clang
           cd clang
-          cmake -GNinja -DDHB_BUILD_TESTS=ON ${{ 'matrix.useClang == true' && '-DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ -DCMAKE_C_COMPILER=/opt/homebrew/opt/llvm/bin/clang' || '-DCMAKE_CXX_COMPILER=c++ -DCMAKE_C_COMPILER=c99' }} -DDHB_WITH_64BIT_IDS=${{ matrix.build64IDs }} ../../
+          cmake -GNinja -DDHB_BUILD_TESTS=ON -DDHB_WITH_64BIT_IDS=${{ matrix.build64IDs }} ../../
           ninja
           ./dhb_test
