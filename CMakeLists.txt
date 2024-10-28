@@ -56,6 +56,43 @@ endif()
 set_property(TARGET dhb PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 find_package(OpenMP REQUIRED)
+if(NOT OpenMP_FOUND)
+  # Thanks to NetworKit for this OpenMP CodeSnippet looking or OpenMP in the
+  # most common folders:
+  # https://github.com/networkit/networkit/blob/master/CMakeLists.txt#L145
+  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+      # This will find default libomp-installations for homebrew/MacPorts
+      find_library(LIBOMP_PATH NAMES omp PATHS "/usr/local/opt/libomp/lib" "/opt/local/lib/libomp" "/opt/homebrew/opt/libomp/lib")
+      find_path(LIBOMP_INCLUDE NAMES omp.h PATHS "/usr/local/opt/libomp/include" "/opt/local/include/libomp" "/opt/homebrew/opt/libomp/include")
+      if(LIBOMP_PATH AND LIBOMP_INCLUDE)
+          set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp -I${LIBOMP_INCLUDE}" CACHE STRING "Manually set" FORCE)
+      endif()
+  elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+      if(DEFINED ENV{CONDA_PREFIX})
+          find_library(LIBOMP_PATH NAMES omp HINTS "$ENV{CONDA_PREFIX}/lib"
+              PATHS "/usr/lib" "/usr/lib64")
+          find_path(LIBOMP_INCLUDE NAMES omp.h HINTS "$ENV{CONDA_PREFIX}/include"
+              PATHS "/usr/include")
+      else()
+          find_library(LIBOMP_PATH NAMES omp PATHS "/usr/lib" "/usr/lib64")
+          find_path(LIBOMP_INCLUDE NAMES omp.h PATHS "/usr/include")
+      endif()
+      if(LIBOMP_PATH AND LIBOMP_INCLUDE)
+          set(OpenMP_CXX_FLAGS "-fopenmp -I${LIBOMP_INCLUDE}" CACHE STRING "Manually set" FORCE)
+      endif()
+  endif()
+
+  # Set OpenMP-folders in case they are found with the aid of additional hints
+  if(LIBOMP_PATH AND LIBOMP_INCLUDE)
+      set(OpenMP_CXX_LIB_NAMES "omp" CACHE STRING "Manually set" FORCE)
+      set(OpenMP_omp_LIBRARY "${LIBOMP_PATH}" CACHE STRING "Manually set" FORCE)
+  else()
+      message(FATAL_ERROR "libomp was not found, but necessary to configure DHB with ${CMAKE_CXX_COMPILER_ID}")
+  endif()
+
+  # After setting basic OpenMP-folders, run find_package again to set everything. Also acts as a final sanity check.
+  find_package(OpenMP REQUIRED)
+endif()
 target_link_libraries(${PROJECT_NAME} PUBLIC OpenMP::OpenMP_CXX)
 
 # Be extra pedantic about warnings!
