@@ -61,6 +61,6 @@ jobs:
           cd build
           mkdir clang
           cd clang
-          cmake -GNinja -DDHB_BUILD_TESTS=ON ${{ matrix.useClang == true && -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ -DCMAKE_C_COMPILER=/opt/homebrew/opt/llvm/bin/clang || -DCMAKE_CXX_COMPILER=c++ -DCMAKE_C_COMPILER=c99 }} -DDHB_WITH_64BIT_IDS=${{ matrix.build64IDs }} ../../
+          cmake -GNinja -DDHB_BUILD_TESTS=ON ${{ 'matrix.useClang == true' && '-DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ -DCMAKE_C_COMPILER=/opt/homebrew/opt/llvm/bin/clang' || '-DCMAKE_CXX_COMPILER=c++ -DCMAKE_C_COMPILER=c99' }} -DDHB_WITH_64BIT_IDS=${{ matrix.build64IDs }} ../../
           ninja
           ./dhb_test
