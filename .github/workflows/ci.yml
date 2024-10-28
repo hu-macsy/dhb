@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy: 
       matrix: 
-        build64IDs: ["OFF", "ON"]  
+        vertexIDType: ['64bit', '32Bit']  
     steps:
       - name: Install prerequisites
         run:  |
@@ -21,13 +21,13 @@ jobs:
         with:
           submodules: true
 
-      - name: build library, 64 bit IDs turned ${{ matrix.build64IDs }}, run test
+      - name: build library, 64 bit IDs turned ${{ matrix.vertexIDType }}, run test
         run:  | 
           [ ! -d build ] && mkdir build
           cd build
           mkdir gcc
           cd gcc
-          cmake -GNinja -DDHB_BUILD_TESTS=ON -DDHB_WITH_64BIT_IDS=${{ matrix.build64IDs }} -DCMAKE_CXX_COMPILER=g++-11 ../../
+          cmake -GNinja -DDHB_BUILD_TESTS=ON -DDHB_WITH_64BIT_IDS=${{ matrix.vertexIDType == '64bit' && 'ON' || 'OFF' }} -DCMAKE_CXX_COMPILER=g++-11 ../../
           ninja
           ./dhb_test
 
@@ -36,8 +36,8 @@ jobs:
     runs-on: macos-14
     strategy: 
       matrix: 
-        build64IDs: ["OFF", "ON"]
-        useClang: ['true', 'false']
+        vertexIDType: ['64bit', '32Bit']  
+        clangCompiler: ['Clang', 'AppleClang']
         
     steps:
       - name: Install prerequisites
@@ -45,8 +45,8 @@ jobs:
           brew install ninja
           brew install libomp
       
-      - name: Install llvm
-        if: matrix.useClang == 'true'
+      - name: Conditionally install llvm
+        if: matrix.clangCompiler == 'Clang'
         run: |
           brew install llvm
   
@@ -55,15 +55,15 @@ jobs:
         with:
           submodules: true
       
-      - name: build library, 64 bit IDs turned ${{ matrix.build64IDs }}, run test
+      - name: build library, 64 bit IDs turned ${{ matrix.vertexIDType }}, run test
         env:
-          CC: ${{ matrix.useClang == 'true' && '/opt/homebrew/opt/llvm/bin/clang' || 'cc' }}
-          CXX: ${{ matrix.useClang == 'true' && '/opt/homebrew/opt/llvm/bin/clang++' || 'c++' }}
+          CC: ${{ matrix.clangCompiler == 'Clang' && '/opt/homebrew/opt/llvm/bin/clang' || 'cc' }}
+          CXX: ${{ matrix.clangCompiler == 'Clang' && '/opt/homebrew/opt/llvm/bin/clang++' || 'c++' }}
         run:  | 
           [ ! -d build ] && mkdir build
           cd build
           mkdir clang
           cd clang
-          cmake -GNinja -DDHB_BUILD_TESTS=ON -DDHB_WITH_64BIT_IDS=${{ matrix.build64IDs }} ../../
+          cmake -GNinja -DDHB_BUILD_TESTS=ON -DDHB_WITH_64BIT_IDS=${{ matrix.vertexIDType == '64bit' && 'ON' || 'OFF' }} ../../
           ninja
           ./dhb_test
