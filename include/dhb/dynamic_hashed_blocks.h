@@ -25,11 +25,11 @@ template <typename E> struct Matrix {
 
         NeighborView(Matrix* g, Vertex u) : m_g{g}, m_u{u} {}
 
-        auto begin() { return m_g->m_vertices[m_u].begin(); }
+        iterator begin() { return m_g->m_vertices[m_u].begin(); }
 
-        auto end() { return m_g->m_vertices[m_u].valid_end(); }
+        iterator end() { return m_g->m_vertices[m_u].valid_end(); }
 
-        auto iterator_to(Vertex v) { return m_g->m_vertices[m_u].iterator_to(v); }
+        iterator iterator_to(Vertex v) { return m_g->m_vertices[m_u].iterator_to(v); }
 
         bool exists(Vertex v) { return iterator_to(v) != end(); }
 
@@ -73,11 +73,11 @@ template <typename E> struct Matrix {
 
         ConstNeighborView(const Matrix* g, Vertex u) : m_g{g}, m_u{u} {}
 
-        auto begin() { return m_g->m_vertices[m_u].begin(); }
+        iterator begin() { return m_g->m_vertices[m_u].begin(); }
 
-        auto end() { return m_g->m_vertices[m_u].valid_end(); }
+        iterator end() { return m_g->m_vertices[m_u].valid_end(); }
 
-        auto iterator_to(Vertex v) { return m_g->m_vertices[m_u].iterator_to(v); }
+        iterator iterator_to(Vertex v) { return m_g->m_vertices[m_u].iterator_to(v); }
 
         bool exists(Vertex v) { return iterator_to(v) != end(); }
 
