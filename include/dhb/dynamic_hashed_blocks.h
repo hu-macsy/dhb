@@ -63,7 +63,7 @@ template <typename E> struct Matrix {
 
       private:
         Matrix* const m_g;
-        Vertex m_u;
+        Vertex const m_u;
     };
 
     class ConstNeighborView {
@@ -89,7 +89,7 @@ template <typename E> struct Matrix {
 
       private:
         Matrix const* const m_g;
-        Vertex m_u;
+        Vertex const m_u;
     };
 
     friend void swap(Matrix& p, Matrix& q) noexcept {
