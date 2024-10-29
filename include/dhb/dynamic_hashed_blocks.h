@@ -67,8 +67,8 @@ template <typename E> struct Matrix {
         Vertex source() const { return m_u; }
 
       private:
-        Matrix* const m_g;
-        Vertex const m_u;
+        Matrix* m_g;
+        Vertex m_u;
     };
 
     class ConstNeighborView {
@@ -93,8 +93,8 @@ template <typename E> struct Matrix {
         Vertex source() const { return m_u; }
 
       private:
-        Matrix const* const m_g;
-        Vertex const m_u;
+        Matrix const* m_g;
+        Vertex m_u;
     };
 
     friend void swap(Matrix& p, Matrix& q) noexcept {
