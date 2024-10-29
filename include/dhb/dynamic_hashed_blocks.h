@@ -37,7 +37,7 @@ template <typename E> struct Matrix {
 
         size_t degree() { return end() - begin(); }
 
-        proxy operator[](size_t i) { return *(begin() + i); }
+        proxy operator[](size_t offset) { return *(begin() + offset); }
 
         std::tuple<iterator, bool> insert(Vertex v, E ed) {
             auto& state = m_g->m_vertices[m_u];
@@ -83,7 +83,7 @@ template <typename E> struct Matrix {
 
         size_t degree() { return end() - begin(); }
 
-        proxy operator[](size_t i) { return *(begin() + i); }
+        proxy operator[](size_t offset) const { return *(begin() + offset); }
 
         Vertex source() const { return m_u; }
 
