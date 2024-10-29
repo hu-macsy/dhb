@@ -58,6 +58,8 @@ template <typename E> struct Matrix {
             return result;
         }
 
+        Vertex source() const { return m_u; }
+
       private:
         Matrix* m_g;
         Vertex m_u;
@@ -80,6 +82,8 @@ template <typename E> struct Matrix {
         size_t degree() { return end() - begin(); }
 
         proxy operator[](size_t i) { return *(begin() + i); }
+
+        Vertex source() const { return m_u; }
 
       private:
         const Matrix* m_g;

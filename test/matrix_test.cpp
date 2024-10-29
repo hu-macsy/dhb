@@ -61,6 +61,7 @@ TEST_CASE("Matrix") {
         Matrix<EdgeData> m(std::move(edges));
         // N(89) = 13, 31
         Matrix<EdgeData>::NeighborView nv = m.neighbors(89);
+        CHECK(nv.source() == 89);
         CHECK(nv.degree() == 3);
         CHECK(nv.exists(13));
         CHECK(nv.exists(31));
@@ -107,6 +108,7 @@ TEST_CASE("Matrix") {
         Matrix<EdgeData> const m(std::move(edges));
         // N(89) = 13, 31
         Matrix<EdgeData>::ConstNeighborView nv = m.neighbors(89);
+        CHECK(nv.source() == 89);
         CHECK(nv.degree() == 3);
         CHECK(nv.exists(13));
         CHECK(nv.exists(31));
