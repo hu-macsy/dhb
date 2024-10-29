@@ -62,7 +62,7 @@ template <typename E> struct Matrix {
         Vertex source() const { return m_u; }
 
       private:
-        Matrix* m_g;
+        Matrix* const m_g;
         Vertex m_u;
     };
 
@@ -73,22 +73,22 @@ template <typename E> struct Matrix {
 
         ConstNeighborView(const Matrix* g, Vertex u) : m_g{g}, m_u{u} {}
 
-        iterator begin() { return m_g->m_vertices[m_u].begin(); }
+        iterator begin() const { return m_g->m_vertices[m_u].begin(); }
 
-        iterator end() { return m_g->m_vertices[m_u].valid_end(); }
+        iterator end() const { return m_g->m_vertices[m_u].valid_end(); }
 
-        iterator iterator_to(Vertex v) { return m_g->m_vertices[m_u].iterator_to(v); }
+        iterator iterator_to(Vertex v) const { return m_g->m_vertices[m_u].iterator_to(v); }
 
-        bool exists(Vertex v) { return iterator_to(v) != end(); }
+        bool exists(Vertex v) const { return iterator_to(v) != end(); }
 
-        size_t degree() { return end() - begin(); }
+        size_t degree() const { return end() - begin(); }
 
         proxy operator[](size_t offset) const { return *(begin() + offset); }
 
         Vertex source() const { return m_u; }
 
       private:
-        const Matrix* m_g;
+        Matrix const* const m_g;
         Vertex m_u;
     };
 
