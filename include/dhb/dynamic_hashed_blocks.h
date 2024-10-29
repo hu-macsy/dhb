@@ -18,7 +18,8 @@ std::vector<Degree> degrees_from(Edges const&);
 
 template <typename E> struct Matrix {
   public:
-    struct NeighborView {
+    class NeighborView {
+      public:
         using iterator = typename BlockState<E>::iterator;
         using proxy = typename BlockState<E>::proxy;
 
@@ -65,7 +66,8 @@ template <typename E> struct Matrix {
         Vertex m_u;
     };
 
-    struct ConstNeighborView {
+    class ConstNeighborView {
+      public:
         using iterator = typename BlockState<E>::const_iterator;
         using proxy = typename BlockState<E>::const_proxy;
 
