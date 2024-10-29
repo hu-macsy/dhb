@@ -67,14 +67,14 @@ TEST_CASE("Matrix") {
         CHECK(nv.exists(31));
         CHECK(nv.exists(86));
 
-        auto n89 = nv.begin();
+        auto n89 = nv.cbegin();
         CHECK(n89 != nv.end());
 
         // yes, we assume an order here
         CHECK(n89->vertex() == 13);
-        CHECK(++n89 != nv.end());
+        CHECK(++n89 != nv.cend());
         CHECK(n89->vertex() == 31);
-        CHECK(++n89 != nv.end());
+        CHECK(++n89 != nv.cend());
         CHECK(n89->vertex() == 86);
 
         auto n31 = nv.iterator_to(31);

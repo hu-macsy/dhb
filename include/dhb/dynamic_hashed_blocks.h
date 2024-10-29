@@ -21,13 +21,18 @@ template <typename E> struct Matrix {
     class NeighborView {
       public:
         using iterator = typename BlockState<E>::iterator;
+        using const_iterator = typename BlockState<E>::const_iterator;
         using proxy = typename BlockState<E>::proxy;
 
         NeighborView(Matrix* g, Vertex u) : m_g{g}, m_u{u} {}
 
         iterator begin() { return m_g->m_vertices[m_u].begin(); }
 
+        const_iterator cbegin() const { return m_g->m_vertices[m_u].cbegin(); }
+
         iterator end() { return m_g->m_vertices[m_u].valid_end(); }
+
+        const_iterator cend() const { return m_g->m_vertices[m_u].cvalid_end(); }
 
         iterator iterator_to(Vertex v) { return m_g->m_vertices[m_u].iterator_to(v); }
 
@@ -73,9 +78,9 @@ template <typename E> struct Matrix {
 
         ConstNeighborView(const Matrix* g, Vertex u) : m_g{g}, m_u{u} {}
 
-        iterator begin() const { return m_g->m_vertices[m_u].begin(); }
+        iterator begin() const { return m_g->m_vertices[m_u].cbegin(); }
 
-        iterator end() const { return m_g->m_vertices[m_u].valid_end(); }
+        iterator end() const { return m_g->m_vertices[m_u].cvalid_end(); }
 
         iterator iterator_to(Vertex v) const { return m_g->m_vertices[m_u].iterator_to(v); }
 
