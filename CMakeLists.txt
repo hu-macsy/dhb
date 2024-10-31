@@ -129,8 +129,10 @@ set_target_properties(${PROJECT_NAME}::${PROJECT_NAME} PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include"
 )
 
-set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${public_headers}")
-set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "d")
+set_target_properties(dhb PROPERTIES CXX_STANDARD 17)
+set_target_properties(dhb PROPERTIES POSITION_INDEPENDENT_CODE ON)
+set_target_properties(dhb PROPERTIES DEBUG_POSTFIX "d")
+set_target_properties(dhb PROPERTIES PUBLIC_HEADER "${public_headers}")
 
 # ===================================
 # Make a Configuration Package
