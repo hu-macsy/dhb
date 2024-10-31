@@ -416,6 +416,7 @@ template <typename E> class BlockState {
         if (uses_htab(m_bsize)) {
             index_type* htab = m_htab;
             auto h = hash_node(v);
+            // TODO when warning is printed: index_type j = 0u;
             index_type j;
             index_type ts = illegalIndex();
             for (index_type i = 0; true; ++i) {
