@@ -76,7 +76,7 @@ template <typename E> struct Matrix {
         using iterator = typename BlockState<E>::const_iterator;
         using proxy = typename BlockState<E>::const_proxy;
 
-        ConstNeighborView(const Matrix* g, Vertex u) : m_graph{g}, m_source{u} {}
+        ConstNeighborView(Matrix const* g, Vertex u) : m_graph{g}, m_source{u} {}
 
         iterator begin() const { return m_graph->m_vertices[m_source].cbegin(); }
 
