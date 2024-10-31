@@ -42,18 +42,16 @@ target_sources(${PROJECT_NAME}
 # Options check and set definitions
 # ===================================
 if (DHB_WITH_SYSTEM_ALLOCATOR)
-  MESSAGE(STATUS "Using DHB System Allocator.")
+  MESSAGE(STATUS "DHB uses system allocator.")
   target_compile_definitions(dhb PUBLIC -DDHB_SYSTEM_ALLOCATOR)
 endif()
 
 if (DHB_WITH_64BIT_IDS)
-  MESSAGE(STATUS "Using 64 bit IDs.")
+  MESSAGE(STATUS "DHB uses 64 bit vertex IDs.")
   target_compile_definitions(dhb PUBLIC -DDHB_64BIT_IDS)
 else()
-  MESSAGE(STATUS "Using 32 bit IDs.")
+  MESSAGE(STATUS "DHB uses 32 bit vertex IDs.")
 endif()
-
-set_property(TARGET dhb PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 find_package(OpenMP)
 # Thanks to NetworKit for the following OpenMP code looking or OpenMP in the
