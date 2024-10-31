@@ -16,6 +16,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # DHB_WITH_SYSTEM_ALLOCATOR=OFF
 option(DHB_WITH_SYSTEM_ALLOCATOR "Use DHB System Allocator" OFF)
 option(DHB_WITH_64BIT_IDS "Use 64 bit IDs." OFF)
+option(DHB_WARNINGS_AS_ERRORS "Sets warning level high, treats warnings as errors ." OFF)
 
 add_library(dhb STATIC)
 
@@ -51,6 +52,11 @@ if (DHB_WITH_64BIT_IDS)
   target_compile_definitions(dhb PUBLIC -DDHB_64BIT_IDS)
 else()
   MESSAGE(STATUS "DHB uses 32 bit vertex IDs.")
+endif()
+
+if (DHB_WARNINGS_AS_ERRORS)
+  MESSAGE(STATUS "DHB is extra pedantic, throws errors on warnings.")
+  target_compile_options(dhb PRIVATE -Werror -Wall -Wextra -Wpedantic -Wmaybe-uninitialized)
 endif()
 
 find_package(OpenMP)
@@ -92,9 +98,6 @@ if(NOT OpenMP_FOUND)
   find_package(OpenMP REQUIRED)
 endif()
 target_link_libraries(${PROJECT_NAME} PUBLIC OpenMP::OpenMP_CXX)
-
-# Be extra pedantic about warnings!
-target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
 target_include_directories(${PROJECT_NAME}
   PRIVATE
