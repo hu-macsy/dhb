@@ -107,7 +107,7 @@ TEST_CASE("Matrix") {
         Matrix<EdgeData> m(std::move(edges));
         // N(89) = 13, 31
         Matrix<EdgeData>::NeighborView nv = m.neighbors(89);
-        Matrix<EdgeData>::NeighborView nv_other = m.neighbors(1);
+        Matrix<EdgeData>::NeighborView nv_other = m.neighbors(186);
         REQUIRE(nv_other.degree() > 1);
 
         nv_other = nv;
