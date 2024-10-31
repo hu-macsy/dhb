@@ -18,72 +18,85 @@ std::vector<Degree> degrees_from(Edges const&);
 
 template <typename E> struct Matrix {
   public:
-    struct NeighborView {
+    class NeighborView {
+      public:
         using iterator = typename BlockState<E>::iterator;
+        using const_iterator = typename BlockState<E>::const_iterator;
         using proxy = typename BlockState<E>::proxy;
 
-        NeighborView(Matrix* g, Vertex u) : m_g{g}, m_u{u} {}
+        NeighborView(Matrix* g, Vertex u) : m_graph{g}, m_source{u} {}
 
-        auto begin() { return m_g->m_vertices[m_u].begin(); }
+        iterator begin() { return m_graph->m_vertices[m_source].begin(); }
 
-        auto end() { return m_g->m_vertices[m_u].valid_end(); }
+        const_iterator cbegin() const { return m_graph->m_vertices[m_source].cbegin(); }
 
-        auto iterator_to(Vertex v) { return m_g->m_vertices[m_u].iterator_to(v); }
+        iterator end() { return m_graph->m_vertices[m_source].valid_end(); }
+
+        const_iterator cend() const { return m_graph->m_vertices[m_source].cvalid_end(); }
+
+        iterator iterator_to(Vertex v) { return m_graph->m_vertices[m_source].iterator_to(v); }
 
         bool exists(Vertex v) { return iterator_to(v) != end(); }
 
-        void clear() { m_g->m_vertices[m_u].clear(); }
+        void clear() { m_graph->m_vertices[m_source].clear(); }
 
         size_t degree() { return end() - begin(); }
 
-        proxy operator[](size_t i) { return *(begin() + i); }
+        proxy operator[](size_t offset) { return *(begin() + offset); }
 
         std::tuple<iterator, bool> insert(Vertex v, E ed) {
-            auto& state = m_g->m_vertices[m_u];
+            auto& state = m_graph->m_vertices[m_source];
 
             if (!state.full())
                 return state.insert(v, ed);
 
             // We need to reallocate the adjacency block.
-            auto new_bhandle = m_g->m_manager->allocate_block(state.bsize() + 1);
+            auto new_bhandle = m_graph->m_manager->allocate_block(state.bsize() + 1);
             BlockState<E> new_block{new_bhandle, state};
             auto result = new_block.insert(v, ed);
 
-            auto old_block = std::move(m_g->m_vertices[m_u]);
-            auto old_bhandle = m_g->m_handles[m_u];
-            m_g->m_vertices[m_u] = std::move(new_block);
-            m_g->m_handles[m_u] = new_bhandle;
-            m_g->m_manager->free_block(old_bhandle);
+            auto old_block = std::move(m_graph->m_vertices[m_source]);
+            auto old_bhandle = m_graph->m_handles[m_source];
+            m_graph->m_vertices[m_source] = std::move(new_block);
+            m_graph->m_handles[m_source] = new_bhandle;
+            m_graph->m_manager->free_block(old_bhandle);
 
             return result;
         }
 
+        Vertex source() const { return m_source; }
+
       private:
-        Matrix* m_g;
-        Vertex m_u;
+        Matrix* m_graph;
+        Vertex m_source;
     };
 
-    struct ConstNeighborView {
+    class ConstNeighborView {
+      public:
         using iterator = typename BlockState<E>::const_iterator;
         using proxy = typename BlockState<E>::const_proxy;
 
-        ConstNeighborView(const Matrix* g, Vertex u) : m_g{g}, m_u{u} {}
+        ConstNeighborView(Matrix const* g, Vertex u) : m_graph{g}, m_source{u} {}
 
-        auto begin() { return m_g->m_vertices[m_u].begin(); }
+        iterator begin() const { return m_graph->m_vertices[m_source].cbegin(); }
 
-        auto end() { return m_g->m_vertices[m_u].valid_end(); }
+        iterator end() const { return m_graph->m_vertices[m_source].cvalid_end(); }
 
-        auto iterator_to(Vertex v) { return m_g->m_vertices[m_u].iterator_to(v); }
+        iterator iterator_to(Vertex v) const {
+            return m_graph->m_vertices[m_source].iterator_to(v);
+        }
 
-        bool exists(Vertex v) { return iterator_to(v) != end(); }
+        bool exists(Vertex v) const { return iterator_to(v) != end(); }
 
-        size_t degree() { return end() - begin(); }
+        size_t degree() const { return end() - begin(); }
 
-        proxy operator[](size_t i) { return *(begin() + i); }
+        proxy operator[](size_t offset) const { return *(begin() + offset); }
+
+        Vertex source() const { return m_source; }
 
       private:
-        const Matrix* m_g;
-        Vertex m_u;
+        Matrix const* m_graph;
+        Vertex m_source;
     };
 
     friend void swap(Matrix& p, Matrix& q) noexcept {

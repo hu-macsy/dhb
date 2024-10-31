@@ -590,7 +590,10 @@ template <typename E> class BlockState {
 
     iterator valid_end() const { return iterator(m_entries + m_degree); }
 
+    const_iterator cvalid_end() const { return const_iterator(m_entries + m_degree); }
+
     iterator begin() { return iterator(m_entries); }
+
     const_iterator begin() const { return const_iterator(m_entries); }
 
     const_iterator cbegin() const { return const_iterator(m_entries); }
