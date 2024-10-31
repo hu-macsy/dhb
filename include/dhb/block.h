@@ -437,8 +437,9 @@ template <typename E> class BlockState {
             }
 
             // If we did hit a tombstone, insert at the tombstone.
-            if (ts != illegalIndex())
+            if (ts != illegalIndex()) {
                 j = ts;
+            }
 
             // Insert into the adjacency list.
             auto i = m_degree++;
