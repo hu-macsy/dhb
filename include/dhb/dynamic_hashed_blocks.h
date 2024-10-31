@@ -24,42 +24,42 @@ template <typename E> struct Matrix {
         using const_iterator = typename BlockState<E>::const_iterator;
         using proxy = typename BlockState<E>::proxy;
 
-        NeighborView(Matrix* g, Vertex u) : m_g{g}, m_u{u} {}
+        NeighborView(Matrix* g, Vertex u) : m_graph{g}, m_u{u} {}
 
-        iterator begin() { return m_g->m_vertices[m_u].begin(); }
+        iterator begin() { return m_graph->m_vertices[m_u].begin(); }
 
-        const_iterator cbegin() const { return m_g->m_vertices[m_u].cbegin(); }
+        const_iterator cbegin() const { return m_graph->m_vertices[m_u].cbegin(); }
 
-        iterator end() { return m_g->m_vertices[m_u].valid_end(); }
+        iterator end() { return m_graph->m_vertices[m_u].valid_end(); }
 
-        const_iterator cend() const { return m_g->m_vertices[m_u].cvalid_end(); }
+        const_iterator cend() const { return m_graph->m_vertices[m_u].cvalid_end(); }
 
-        iterator iterator_to(Vertex v) { return m_g->m_vertices[m_u].iterator_to(v); }
+        iterator iterator_to(Vertex v) { return m_graph->m_vertices[m_u].iterator_to(v); }
 
         bool exists(Vertex v) { return iterator_to(v) != end(); }
 
-        void clear() { m_g->m_vertices[m_u].clear(); }
+        void clear() { m_graph->m_vertices[m_u].clear(); }
 
         size_t degree() { return end() - begin(); }
 
         proxy operator[](size_t offset) { return *(begin() + offset); }
 
         std::tuple<iterator, bool> insert(Vertex v, E ed) {
-            auto& state = m_g->m_vertices[m_u];
+            auto& state = m_graph->m_vertices[m_u];
 
             if (!state.full())
                 return state.insert(v, ed);
 
             // We need to reallocate the adjacency block.
-            auto new_bhandle = m_g->m_manager->allocate_block(state.bsize() + 1);
+            auto new_bhandle = m_graph->m_manager->allocate_block(state.bsize() + 1);
             BlockState<E> new_block{new_bhandle, state};
             auto result = new_block.insert(v, ed);
 
-            auto old_block = std::move(m_g->m_vertices[m_u]);
-            auto old_bhandle = m_g->m_handles[m_u];
-            m_g->m_vertices[m_u] = std::move(new_block);
-            m_g->m_handles[m_u] = new_bhandle;
-            m_g->m_manager->free_block(old_bhandle);
+            auto old_block = std::move(m_graph->m_vertices[m_u]);
+            auto old_bhandle = m_graph->m_handles[m_u];
+            m_graph->m_vertices[m_u] = std::move(new_block);
+            m_graph->m_handles[m_u] = new_bhandle;
+            m_graph->m_manager->free_block(old_bhandle);
 
             return result;
         }
@@ -67,7 +67,7 @@ template <typename E> struct Matrix {
         Vertex source() const { return m_u; }
 
       private:
-        Matrix* m_g;
+        Matrix* m_graph;
         Vertex m_u;
     };
 
@@ -76,13 +76,13 @@ template <typename E> struct Matrix {
         using iterator = typename BlockState<E>::const_iterator;
         using proxy = typename BlockState<E>::const_proxy;
 
-        ConstNeighborView(const Matrix* g, Vertex u) : m_g{g}, m_u{u} {}
+        ConstNeighborView(const Matrix* g, Vertex u) : m_graph{g}, m_u{u} {}
 
-        iterator begin() const { return m_g->m_vertices[m_u].cbegin(); }
+        iterator begin() const { return m_graph->m_vertices[m_u].cbegin(); }
 
-        iterator end() const { return m_g->m_vertices[m_u].cvalid_end(); }
+        iterator end() const { return m_graph->m_vertices[m_u].cvalid_end(); }
 
-        iterator iterator_to(Vertex v) const { return m_g->m_vertices[m_u].iterator_to(v); }
+        iterator iterator_to(Vertex v) const { return m_graph->m_vertices[m_u].iterator_to(v); }
 
         bool exists(Vertex v) const { return iterator_to(v) != end(); }
 
@@ -93,7 +93,7 @@ template <typename E> struct Matrix {
         Vertex source() const { return m_u; }
 
       private:
-        Matrix const* m_g;
+        Matrix const* m_graph;
         Vertex m_u;
     };
 
