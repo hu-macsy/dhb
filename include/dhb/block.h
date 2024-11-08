@@ -523,7 +523,7 @@ template <typename E> class BlockState {
         } else {
             // Find the index.
             index_type iv;
-            for (iv = 0; iv < m_degree; ++iv)
+            for (iv = 0u; iv < m_degree; ++iv)
                 if (m_entries[iv].vertex == v)
                     break;
 
@@ -532,7 +532,7 @@ template <typename E> class BlockState {
                 return false;
 
             // Swap with the last entry.
-            if (iv + 1 != m_degree)
+            if (iv + 1u != m_degree)
                 m_entries[iv] = m_entries[m_degree - 1];
 
             // Remove the last entry.
