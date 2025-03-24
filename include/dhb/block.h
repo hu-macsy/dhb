@@ -25,7 +25,7 @@ inline bool uses_htab(size_t const bsize) {
     // using the hash index is only useful if the block becomes larger than
     // several cache lines (approx. 16 or so). Hence, the following is a
     // reasonably good heuristic:
-    return 16 * bsize > 16 * cache_line;
+    return 16u * bsize > 16u * cache_line;
 }
 
 // Taken from https://stackoverflow.com/a/12996028.
