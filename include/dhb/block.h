@@ -20,7 +20,7 @@ inline index_type tombstoneIndex() { return static_cast<index_type>(-2); };
 
 // TODO: This could take the entry size into account.
 inline bool uses_htab(size_t const bsize) {
-    const size_t cache_line = 64;
+    size_t constexpr cache_line = 64;
     // Each entry is typically 16 bytes or so. Preliminary experiments show that
     // using the hash index is only useful if the block becomes larger than
     // several cache lines (approx. 16 or so). Hence, the following is a
