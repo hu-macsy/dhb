@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <exception>
 #include <mutex>
 #include <sys/mman.h>
 #include <vector>
