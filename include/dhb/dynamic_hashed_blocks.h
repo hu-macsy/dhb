@@ -173,7 +173,6 @@ template <typename E> struct Matrix {
             auto new_bhandle = m_manager->allocate_block(degree);
             BlockState<E> new_block{new_bhandle, associated_block};
 
-            auto old_block = std::move(m_vertices[u]);
             auto old_bhandle = m_handles[u];
             m_vertices[u] = std::move(new_block);
             m_handles[u] = new_bhandle;

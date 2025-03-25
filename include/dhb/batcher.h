@@ -156,7 +156,6 @@ template <typename T> class BatchParallelizer {
                 auto j_end = ot_counts[t + 1];
                 for (size_t j = j_begin; j < j_end; ++j) {
                     auto i = m_batch_slots[j];
-                    auto edge = *(begin + i);
                     func(*(begin + i));
                 }
                 local_count += j_end - j_begin;
@@ -249,7 +248,6 @@ template <typename T> class BatchParallelizer {
             auto j_end = ot_counts[t + 1];
             for (size_t j = j_begin; j < j_end; ++j) {
                 auto i = m_batch_slots[j];
-                auto edge = *(begin + i);
                 func(*(begin + i));
             }
             local_count += j_end - j_begin;
