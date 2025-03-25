@@ -7,8 +7,11 @@
 #include <cassert>
 #include <exception>
 #include <mutex>
-#include <sys/mman.h>
 #include <vector>
+
+#ifndef DHB_SYSTEM_ALLOCATOR
+#include <sys/mman.h>
+#endif
 
 namespace dhb {
 
