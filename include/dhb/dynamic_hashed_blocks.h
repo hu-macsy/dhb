@@ -55,7 +55,6 @@ template <typename E> struct Matrix {
             BlockState<E> new_block{new_bhandle, state};
             auto result = new_block.insert(v, ed);
 
-            auto old_block = std::move(m_graph->m_vertices[m_source]);
             auto old_bhandle = m_graph->m_handles[m_source];
             m_graph->m_vertices[m_source] = std::move(new_block);
             m_graph->m_handles[m_source] = new_bhandle;

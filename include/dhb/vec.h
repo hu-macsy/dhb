@@ -59,7 +59,6 @@ template <typename E> struct Vec {
         BlockState<E> new_block{new_bhandle, state};
         auto result = new_block.insert(u, ed);
 
-        auto old_block = std::move(m_state);
         auto old_bhandle = m_handle;
         m_state = std::move(new_block);
         m_handle = new_bhandle;
