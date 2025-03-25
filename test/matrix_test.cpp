@@ -272,7 +272,6 @@ TEST_CASE("Matrix") {
         Edges new_edges{e89_14, e89_8, e89_13_update};
 
         auto cmp = [](Edge const& a, Edge const& b) { return a.source < b.source; };
-        auto key = [](Edge e) { return e.source; };
         auto fun = [&](Edge e) {
             std::tuple<dhb::BlockState<dhb::EdgeData>::iterator, bool> insertion_result =
                 m.neighbors(e.source).insert(e.target.vertex, e.target.data);
@@ -306,7 +305,6 @@ TEST_CASE("Matrix") {
         Matrix<EdgeData> m(graph::vertex_count(edges));
 
         auto cmp = [](Edge const& a, Edge const& b) { return a.source < b.source; };
-        auto key = [](Edge e) { return e.source; };
         auto fun = [&](Edge e) { m.neighbors(e.source).insert(e.target.vertex, e.target.data); };
         auto get_edge_f = [](Edge const& e) { return e.source; };
         BatchParallelizer<Edge> par;
@@ -318,7 +316,6 @@ TEST_CASE("Matrix") {
         Edges new_edges{e89_14, e89_8};
 
         auto cmp2 = [](Edge const& a, Edge const& b) { return a.source < b.source; };
-        auto key2 = [](Edge e) { return e.source; };
         par(new_edges.begin(), new_edges.end(), std::move(get_edge_f), std::move(cmp2),
             [&](Edge e) { m.neighbors(e.source).insert(e.target.vertex, e.target.data); });
 
@@ -351,7 +348,6 @@ TEST_CASE("Matrix") {
         Edges new_edges{e89_14, e89_8};
 
         auto cmp2 = [](Edge const& a, Edge const& b) { return a.source < b.source; };
-        auto key2 = [](Edge e) { return e.source; };
 
         par(new_edges.begin(), new_edges.end(), std::move(get_edge_f), std::move(cmp2),
             [&](Edge e) { m.neighbors(e.source).insert(e.target.vertex, e.target.data); });
@@ -372,9 +368,7 @@ TEST_CASE("Matrix") {
 
         Matrix<EdgeData> m(graph::vertex_count(edges));
 
-        auto cmp = [](Edge const& a, Edge const& b) { return a.source < b.source; };
         auto key = [](Edge e) { return e.source; };
-        auto fun = [&](Edge e) { m.neighbors(e.source).insert(e.target.vertex, e.target.data); };
         auto get_edge_f = [](Edge const& e) { return e.source; };
         BatchParallelizer<Edge> par;
 
@@ -401,7 +395,6 @@ TEST_CASE("Matrix") {
         Edges new_edges{e89_14, e89_8};
 
         auto cmp2 = [](Edge const& a, Edge const& b) { return a.source < b.source; };
-        auto key2 = [](Edge e) { return e.source; };
 
         par(new_edges.begin(), new_edges.end(), std::move(get_edge_f), std::move(cmp2),
             [&](Edge e) { m.neighbors(e.source).insert(e.target.vertex, e.target.data); });
@@ -423,7 +416,6 @@ TEST_CASE("Matrix") {
         Matrix<EdgeData> m(graph::vertex_count(edges));
 
         auto cmp = [](Edge const& a, Edge const& b) { return a.source < b.source; };
-        auto key = [](Edge e) { return e.source; };
         auto get_edge_f = [](Edge const& e) { return e.source; };
 
         BatchParallelizer<Edge> par;
@@ -436,9 +428,6 @@ TEST_CASE("Matrix") {
         Edge e89_13_update{89, Target{13, EdgeData{11.f, 455}}};
 
         Edges new_edges{e89_14, e89_8, e89_13_update};
-
-        auto cmp2 = [](Edge const& a, Edge const& b) { return a.source < b.source; };
-        auto key2 = [](Edge e) { return e.source; };
 
         par(new_edges.begin(), new_edges.end(), std::move(get_edge_f), std::move(cmp), [&](Edge e) {
             std::tuple<dhb::BlockState<dhb::EdgeData>::iterator, bool> insertion_result =
