@@ -200,6 +200,11 @@ if (DHB_BUILD_TESTS)
     test/submatrix.cpp
   )
 
+  if (DHB_WARNINGS_AS_ERRORS)
+    MESSAGE(STATUS "DHB test is extra pedantic, throws errors on warnings.")
+    target_compile_options(dhb_test PRIVATE -Werror -Wall -Wextra -Wpedantic -Wmaybe-uninitialized)
+  endif()
+
   target_link_libraries(dhb_test PRIVATE dhb Catch2::Catch2WithMain OpenMP::OpenMP_CXX)
 
   install(
