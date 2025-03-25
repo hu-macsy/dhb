@@ -197,7 +197,7 @@ if (DHB_BUILD_TESTS)
     test/matrix_test.cpp
     test/vec_test.cpp
     test/block.cpp
-    test/submatrix.cpp
+    test/submatrix_test.cpp
   )
 
   if (DHB_WARNINGS_AS_ERRORS)
