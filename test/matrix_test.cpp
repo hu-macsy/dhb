@@ -61,19 +61,20 @@ TEST_CASE("Matrix") {
         Matrix<EdgeData> m(std::move(edges));
         // N(89) = 13, 31
         Matrix<EdgeData>::NeighborView nv = m.neighbors(89);
+        CHECK(nv.source() == 89);
         CHECK(nv.degree() == 3);
         CHECK(nv.exists(13));
         CHECK(nv.exists(31));
         CHECK(nv.exists(86));
 
-        auto n89 = nv.begin();
+        auto n89 = nv.cbegin();
         CHECK(n89 != nv.end());
 
         // yes, we assume an order here
         CHECK(n89->vertex() == 13);
-        CHECK(++n89 != nv.end());
+        CHECK(++n89 != nv.cend());
         CHECK(n89->vertex() == 31);
-        CHECK(++n89 != nv.end());
+        CHECK(++n89 != nv.cend());
         CHECK(n89->vertex() == 86);
 
         auto n31 = nv.iterator_to(31);
@@ -86,6 +87,36 @@ TEST_CASE("Matrix") {
         CHECK(std::get<0>(r)->vertex() == 14);
         CHECK(nv.degree() == 4);
         CHECK(nv.exists(14));
+    }
+
+    SECTION("NeighborView, copy constructor") {
+        Matrix<EdgeData> m(std::move(edges));
+        // N(89) = 13, 31
+        Matrix<EdgeData>::NeighborView nv = m.neighbors(89);
+
+        Matrix<EdgeData>::NeighborView nv_copy{nv};
+
+        CHECK(nv_copy.source() == nv.source());
+        CHECK(nv_copy.degree() == nv.degree());
+        CHECK(nv_copy.exists(13) == nv.exists(13));
+        CHECK(nv_copy.exists(31) == nv.exists(31));
+        CHECK(nv_copy.exists(86) == nv.exists(86));
+    }
+
+    SECTION("NeighborView, copy assignment") {
+        Matrix<EdgeData> m(std::move(edges));
+        // N(89) = 13, 31
+        Matrix<EdgeData>::NeighborView nv = m.neighbors(89);
+        Matrix<EdgeData>::NeighborView nv_other = m.neighbors(186);
+        REQUIRE(nv_other.degree() > 1);
+
+        nv_other = nv;
+
+        CHECK(nv_other.source() == nv.source());
+        CHECK(nv_other.degree() == nv.degree());
+        CHECK(nv_other.exists(13) == nv.exists(13));
+        CHECK(nv_other.exists(31) == nv.exists(31));
+        CHECK(nv_other.exists(86) == nv.exists(86));
     }
 
     SECTION("change target vertex of edge") {
@@ -107,6 +138,7 @@ TEST_CASE("Matrix") {
         Matrix<EdgeData> const m(std::move(edges));
         // N(89) = 13, 31
         Matrix<EdgeData>::ConstNeighborView nv = m.neighbors(89);
+        CHECK(nv.source() == 89);
         CHECK(nv.degree() == 3);
         CHECK(nv.exists(13));
         CHECK(nv.exists(31));
