@@ -195,7 +195,7 @@ if (DHB_BUILD_TESTS)
     test/graph_io.h
     test/graph_io.cpp
     test/matrix_test.cpp
-    test/vec.cpp
+    test/vec_test.cpp
     test/block.cpp
     test/submatrix.cpp
   )

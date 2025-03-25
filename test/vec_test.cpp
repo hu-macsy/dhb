@@ -2,7 +2,7 @@
 #include <dhb/vec.h>
 
 TEST_CASE("Vec") {
-    dhb::Vec<int> v;
+    dhb::Vec<uint32_t> v;
 
     REQUIRE(std::get<1>(v.insert(2, 1)));
     REQUIRE(std::get<1>(v.insert(3, 1)));
@@ -11,11 +11,11 @@ TEST_CASE("Vec") {
     REQUIRE(std::get<1>(v.insert(11, 1)));
 
     SECTION("iterate") {
-        std::array<int, 5> indices{2, 3, 5, 7, 11};
+        std::array<uint32_t, 5> indices{2, 3, 5, 7, 11};
 
         bool entries_are_equal =
             std::equal(v.begin(), v.end(), indices.begin(), indices.end(),
-                       [](auto ent, int idx) -> bool { return ent.vertex() == idx; });
+                       [](auto ent, uint32_t idx) -> bool { return ent.vertex() == idx; });
         CHECK(entries_are_equal);
 
         bool all_edge_data_is_1 =
