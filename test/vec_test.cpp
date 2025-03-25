@@ -63,11 +63,11 @@ TEST_CASE("Vec") {
     SECTION("erase") {
         v.erase(v.find(11));
         v.erase(v.find(5));
-        std::array<int, 3> indices{2, 3, 7};
+        std::array<uint32_t, 3> indices{2, 3, 7};
 
         bool erase_took_place =
             std::equal(v.begin(), v.end(), indices.begin(), indices.end(),
-                       [](auto ent, int idx) -> bool { return ent.vertex() == idx; });
+                       [](auto ent, uint32_t idx) -> bool { return ent.vertex() == idx; });
         CHECK(erase_took_place);
     }
 
