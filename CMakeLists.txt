@@ -9,11 +9,6 @@ include(GNUInstallDirs)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
-# Configure the option whether you want to use the systems own allocater
-# DHB_WITH_SYSTEM_ALLOCATOR=ON
-# or our own written allocator strategy
-# DHB_WITH_SYSTEM_ALLOCATOR=OFF
 option(DHB_WITH_SYSTEM_ALLOCATOR "Use DHB System Allocator" OFF)
 option(DHB_WITH_64BIT_IDS "Use 64 bit IDs." OFF)
 option(DHB_WARNINGS_AS_ERRORS "Sets warning level high, treats warnings as errors ." OFF)
