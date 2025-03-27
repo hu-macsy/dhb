@@ -19,8 +19,8 @@ class BlockHandle;
 class BlockArray;
 
 using index_type = size_t;
-inline index_type illegalIndex() { return static_cast<index_type>(-1); };
-inline index_type tombstoneIndex() { return static_cast<index_type>(-2); };
+inline index_type illegalIndex() { return static_cast<index_type>(-1); }
+inline index_type tombstoneIndex() { return static_cast<index_type>(-2); }
 
 // TODO: This could take the entry size into account.
 inline bool uses_htab(size_t const bsize) {
