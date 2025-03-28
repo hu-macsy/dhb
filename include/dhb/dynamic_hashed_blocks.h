@@ -9,6 +9,7 @@
 #include <functional>
 #include <memory>
 #include <mutex>
+#include <numeric>
 #include <omp.h>
 #include <vector>
 
