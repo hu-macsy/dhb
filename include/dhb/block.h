@@ -5,9 +5,13 @@
 
 #include <algorithm>
 #include <cassert>
+#include <exception>
 #include <mutex>
-#include <sys/mman.h>
 #include <vector>
+
+#ifndef DHB_SYSTEM_ALLOCATOR
+#include <sys/mman.h>
+#endif
 
 namespace dhb {
 
@@ -15,17 +19,17 @@ class BlockHandle;
 class BlockArray;
 
 using index_type = size_t;
-inline index_type illegalIndex() { return static_cast<index_type>(-1); };
-inline index_type tombstoneIndex() { return static_cast<index_type>(-2); };
+inline index_type illegalIndex() { return static_cast<index_type>(-1); }
+inline index_type tombstoneIndex() { return static_cast<index_type>(-2); }
 
 // TODO: This could take the entry size into account.
-inline bool uses_htab(size_t bsize) {
-    const size_t cache_line = 64;
-    // Each entry is typically 16 bytes or so.
-    // Preliminary experiments how that using the hash index is only useful if the block becomes
-    // larger than several cache lines (approx. 16 or so).
-    // Hence, the following is a reasonably good heuristic:
-    return 16 * bsize > 16 * cache_line;
+inline bool uses_htab(size_t const bsize) {
+    size_t constexpr cache_line = 64;
+    // Each entry is typically 16 bytes or so. Preliminary experiments show that
+    // using the hash index is only useful if the block becomes larger than
+    // several cache lines (approx. 16 or so). Hence, the following is a
+    // reasonably good heuristic:
+    return 16u * bsize > 16u * cache_line;
 }
 
 // Taken from https://stackoverflow.com/a/12996028.
@@ -416,7 +420,7 @@ template <typename E> class BlockState {
         if (uses_htab(m_bsize)) {
             index_type* htab = m_htab;
             auto h = hash_node(v);
-            index_type j;
+            index_type j = 0u;
             index_type ts = illegalIndex();
             for (index_type i = 0; true; ++i) {
                 if (i == m_bsize) {
@@ -437,8 +441,9 @@ template <typename E> class BlockState {
             }
 
             // If we did hit a tombstone, insert at the tombstone.
-            if (ts != illegalIndex())
+            if (ts != illegalIndex()) {
                 j = ts;
+            }
 
             // Insert into the adjacency list.
             auto i = m_degree++;
@@ -521,7 +526,7 @@ template <typename E> class BlockState {
         } else {
             // Find the index.
             index_type iv;
-            for (iv = 0; iv < m_degree; ++iv)
+            for (iv = 0u; iv < m_degree; ++iv)
                 if (m_entries[iv].vertex == v)
                     break;
 
@@ -530,7 +535,7 @@ template <typename E> class BlockState {
                 return false;
 
             // Swap with the last entry.
-            if (iv + 1 != m_degree)
+            if (iv + 1u != m_degree)
                 m_entries[iv] = m_entries[m_degree - 1];
 
             // Remove the last entry.

@@ -15,9 +15,9 @@ class TestMatrix {
         // [ 13 | 4 | 0 ]
         // clang-format off
         dhb::Edges edges_a = { 
-            {0, Tar{0, ED{1.0}}},  {0, Tar{1, ED{3.0}}}, {0, Tar{2, ED{0.0}}},
-            {1, Tar{0, ED{4.0}}},  {1, Tar{1, ED{5.0}}}, {1, Tar{2, ED{8.0}}},
-            {2, Tar{0, ED{13.0}}}, {2, Tar{1, ED{4.0}}}, {2, Tar{2, ED{0.0}}},
+            {0, Tar{0, ED{1.0, 0}}},  {0, Tar{1, ED{3.0, 0}}}, {0, Tar{2, ED{0.0, 0}}},
+            {1, Tar{0, ED{4.0, 0}}},  {1, Tar{1, ED{5.0, 0}}}, {1, Tar{2, ED{8.0, 0}}},
+            {2, Tar{0, ED{13.0, 0}}}, {2, Tar{1, ED{4.0, 0}}}, {2, Tar{2, ED{0.0, 0}}},
         };
         // clang-format on
 

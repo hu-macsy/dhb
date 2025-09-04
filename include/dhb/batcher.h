@@ -69,7 +69,7 @@ template <typename T> class BatchParallelizer {
   public:
     template <typename Iterator, typename GetSourceF, typename Cmp, typename F>
     void operator()(Iterator begin, Iterator end, GetSourceF&& get_source_f, Cmp cmp, F func) {
-        int const t_count = omp_get_max_threads();
+        uint32_t const t_count = omp_get_max_threads();
         size_t const n = end - begin;
         if (t_count == 1 || n < t_count) {
             for (auto it = begin; it != end; ++it)
@@ -90,7 +90,7 @@ template <typename T> class BatchParallelizer {
 
     template <typename Iterator, typename K, typename F>
     void apply(Iterator begin, Iterator end, K key, F func) {
-        size_t const t_count = omp_get_max_threads();
+        uint32_t const t_count = omp_get_max_threads();
         size_t const n = end - begin;
         if (t_count == 1 || n < t_count) {
             for (auto it = begin; it != end; ++it)
@@ -104,7 +104,7 @@ template <typename T> class BatchParallelizer {
 #pragma omp parallel num_threads(t_count)
         {
             size_t const t = omp_get_thread_num();
-            assert(omp_get_num_threads() == t_count);
+            assert(uint32_t(omp_get_num_threads()) == t_count);
 
             auto counts_of_thread = [&](int ct) -> uint64_t* {
                 return &m_batch_counts[ct * (t_count + 1)];
@@ -156,7 +156,6 @@ template <typename T> class BatchParallelizer {
                 auto j_end = ot_counts[t + 1];
                 for (size_t j = j_begin; j < j_end; ++j) {
                     auto i = m_batch_slots[j];
-                    auto edge = *(begin + i);
                     func(*(begin + i));
                 }
                 local_count += j_end - j_begin;
@@ -165,7 +164,7 @@ template <typename T> class BatchParallelizer {
     }
 
     template <typename Iterator, typename K> void distribute(Iterator begin, Iterator end, K key) {
-        int const t_count = omp_get_num_threads();
+        uint32_t const t_count = omp_get_num_threads();
         size_t const n = end - begin;
         if (t_count == 1 || n < t_count) {
             return;
@@ -177,7 +176,7 @@ template <typename T> class BatchParallelizer {
             m_batch_slots.resize(n);
         }
 
-        auto t = omp_get_thread_num();
+        uint32_t t = omp_get_thread_num();
 
         auto counts_of_thread = [&](int ct) -> uint64_t* {
             return &m_batch_counts[ct * (t_count + 1)];
@@ -192,7 +191,7 @@ template <typename T> class BatchParallelizer {
         // First, perform a local counting sort to sort updates according to associated threads.
 
         auto t_counts = counts_of_thread(t);
-        for (int at = 0; at < t_count; ++at)
+        for (uint32_t at = 0; at < t_count; ++at)
             t_counts[at] = 0;
 
         for (size_t i = i_begin; i < i_end; ++i) {
@@ -202,7 +201,7 @@ template <typename T> class BatchParallelizer {
         }
 
         uint64_t psum = 0;
-        for (int at = 0; at < t_count; ++at) {
+        for (uint32_t at = 0; at < t_count; ++at) {
             psum += t_counts[at];
             t_counts[at] = i_begin + psum;
         }
@@ -223,7 +222,7 @@ template <typename T> class BatchParallelizer {
     }
 
     template <typename Iterator, typename F> void map(Iterator begin, Iterator end, F func) {
-        int const t_count = omp_get_num_threads();
+        uint32_t const t_count = omp_get_num_threads();
         size_t const n = end - begin;
         if (t_count == 1 || n < t_count) {
 #pragma omp master
@@ -243,13 +242,12 @@ template <typename T> class BatchParallelizer {
         };
 
         uint64_t local_count = 0;
-        for (int ot = 0; ot < t_count; ++ot) {
+        for (uint32_t ot = 0; ot < t_count; ++ot) {
             auto ot_counts = counts_of_thread(ot);
             auto j_begin = ot_counts[t];
             auto j_end = ot_counts[t + 1];
             for (size_t j = j_begin; j < j_end; ++j) {
                 auto i = m_batch_slots[j];
-                auto edge = *(begin + i);
                 func(*(begin + i));
             }
             local_count += j_end - j_begin;

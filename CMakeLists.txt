@@ -9,13 +9,9 @@ include(GNUInstallDirs)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
-# Configure the option whether you want to use the systems own allocater
-# DHB_WITH_SYSTEM_ALLOCATOR=ON
-# or our own written allocator strategy
-# DHB_WITH_SYSTEM_ALLOCATOR=OFF
 option(DHB_WITH_SYSTEM_ALLOCATOR "Use DHB System Allocator" OFF)
 option(DHB_WITH_64BIT_IDS "Use 64 bit IDs." OFF)
+option(DHB_WARNINGS_AS_ERRORS "Sets warning level high, treats warnings as errors ." OFF)
 
 add_library(dhb STATIC)
 
@@ -42,18 +38,21 @@ target_sources(${PROJECT_NAME}
 # Options check and set definitions
 # ===================================
 if (DHB_WITH_SYSTEM_ALLOCATOR)
-  MESSAGE(STATUS "Using DHB System Allocator.")
+  MESSAGE(STATUS "DHB uses system allocator.")
   target_compile_definitions(dhb PUBLIC -DDHB_SYSTEM_ALLOCATOR)
 endif()
 
 if (DHB_WITH_64BIT_IDS)
-  MESSAGE(STATUS "Using 64 bit IDs.")
+  MESSAGE(STATUS "DHB uses 64 bit vertex IDs.")
   target_compile_definitions(dhb PUBLIC -DDHB_64BIT_IDS)
 else()
-  MESSAGE(STATUS "Using 32 bit IDs.")
+  MESSAGE(STATUS "DHB uses 32 bit vertex IDs.")
 endif()
 
-set_property(TARGET dhb PROPERTY POSITION_INDEPENDENT_CODE ON)
+if (DHB_WARNINGS_AS_ERRORS)
+  MESSAGE(STATUS "DHB is extra pedantic, throws errors on warnings.")
+  target_compile_options(dhb PRIVATE -Werror -Wall -Wextra -Wpedantic -Wmaybe-uninitialized)
+endif()
 
 find_package(OpenMP)
 # Thanks to NetworKit for the following OpenMP code looking or OpenMP in the
@@ -95,9 +94,6 @@ if(NOT OpenMP_FOUND)
 endif()
 target_link_libraries(${PROJECT_NAME} PUBLIC OpenMP::OpenMP_CXX)
 
-# Be extra pedantic about warnings!
-target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
-
 target_include_directories(${PROJECT_NAME}
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
@@ -128,8 +124,10 @@ set_target_properties(${PROJECT_NAME}::${PROJECT_NAME} PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include"
 )
 
-set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${public_headers}")
-set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "d")
+set_target_properties(dhb PROPERTIES CXX_STANDARD 17)
+set_target_properties(dhb PROPERTIES POSITION_INDEPENDENT_CODE ON)
+set_target_properties(dhb PROPERTIES DEBUG_POSTFIX "d")
+set_target_properties(dhb PROPERTIES PUBLIC_HEADER "${public_headers}")
 
 # ===================================
 # Make a Configuration Package
@@ -192,10 +190,15 @@ if (DHB_BUILD_TESTS)
     test/graph_io.h
     test/graph_io.cpp
     test/matrix_test.cpp
-    test/vec.cpp
+    test/vec_test.cpp
     test/block.cpp
-    test/submatrix.cpp
+    test/submatrix_test.cpp
   )
+
+  if (DHB_WARNINGS_AS_ERRORS)
+    MESSAGE(STATUS "DHB test is extra pedantic, throws errors on warnings.")
+    target_compile_options(dhb_test PRIVATE -Werror -Wall -Wextra -Wpedantic -Wmaybe-uninitialized)
+  endif()
 
   target_link_libraries(dhb_test PRIVATE dhb Catch2::Catch2WithMain OpenMP::OpenMP_CXX)
 
