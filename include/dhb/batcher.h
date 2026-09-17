@@ -45,10 +45,8 @@ std::tuple<EdgeIt, EdgeIt> thread_batch(EdgeIt batch_begin, EdgeIt batch_end,
         }
 
         if (start != end) {
-            for (Vertex successor = (end == batch_end) ? invalidVertex() : get_source_f(*end);
-                 end != batch_end && successor == get_source_f(*(end - 1)) &&
-                 get_source_f(*end) != predecessor;
-                 successor = get_source_f(*end)) {
+            while (end != batch_end && get_source_f(*end) == get_source_f(*(end - 1)) &&
+                   get_source_f(*end) != predecessor) {
                 std::advance(end, 1);
             }
         }
